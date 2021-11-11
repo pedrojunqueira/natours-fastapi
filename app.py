@@ -1,8 +1,9 @@
 from pathlib import Path
 import os
 import json
+import time
 
-from fastapi import FastAPI, Response, status
+from fastapi import FastAPI, Response, status, Request
 
 
 app = FastAPI()
@@ -14,6 +15,18 @@ with open( p / "dev-data/data/tours-simple.json", "r" ) as fp:
     tours = json.load(fp)
 
 
+# added midddleware
+
+@app.middleware("http")
+async def add_some_middleware(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = str(process_time)
+    print(process_time)
+    return response
+
+
 @app.get('/api/v1/tours')
 async def get_all_tours():
     return {
@@ -21,6 +34,7 @@ async def get_all_tours():
         "results" : len(tours),
         "data" : tours,
     }
+
 
 @app.get('/api/v1/tours/{id:int}')
 async def get_tour(id:int, response:Response):
