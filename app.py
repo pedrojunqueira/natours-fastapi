@@ -36,18 +36,6 @@ async def get_all_tours():
     }
 
 
-@app.get('/api/v1/tours/{id:int}')
-async def get_tour(id:int, response:Response):
-    tour = list(filter(lambda t: t["id"]==id, tours))
-    if tour:
-        return {
-            "status" : 'success',
-            "data" : tour[0],
-        }
-    if not tour:
-        response.status_code = status.HTTP_404_NOT_FOUND
-        return { "status": 'fail', "message": 'Invalid Id' }
-
 @app.post('/api/v1/tours')
 async def create_tour(tour:dict):
     newId = tours[-1]["id"] +1
@@ -62,6 +50,19 @@ async def create_tour(tour:dict):
         } 
     }
 
+@app.get('/api/v1/tours/{id:int}')
+async def get_tour(id:int, response:Response):
+    tour = list(filter(lambda t: t["id"]==id, tours))
+    if tour:
+        return {
+            "status" : 'success',
+            "data" : tour[0],
+        }
+    if not tour:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return { "status": 'fail', "message": 'Invalid Id' }
+
+
 @app.patch('/api/v1/tours/{id:int}')
 async def update_tour(id:int):
     return {
@@ -75,3 +76,35 @@ async def delete_tour(id:int):
         "status" : 'success',
         "data" : None,
     }
+
+@app.get('/api/v1/users')
+async def get_all_users():
+    return {
+        "status" : 'error',
+        "message" : 'not yet implemented'   }
+
+
+@app.post('/api/v1/users')
+async def create_user(tour:dict):
+    return {
+        "status" : 'error',
+        "message" : 'not yet implemented'   }
+
+@app.get('/api/v1/users/{id:int}')
+async def get_user(id:int):
+    return {
+        "status" : 'error',
+        "message" : 'not yet implemented'   }
+
+
+@app.patch('/api/v1/users/{id:int}')
+async def update_user(id:int):
+    return {
+        "status" : 'error',
+        "message" : 'not yet implemented'   }
+
+@app.delete('/api/v1/users/{id:int}')
+async def delete_user(id:int):
+    return {
+        "status" : 'error',
+        "message" : 'not yet implemented'   }
