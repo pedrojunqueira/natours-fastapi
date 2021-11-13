@@ -1,20 +1,14 @@
-from pathlib import Path
-import os
-import json
-
-
 import fastapi
-from fastapi import Response, status
+from fastapi import Response, status, Request
+
+from controllers import tour_controller
 
 router = fastapi.APIRouter()
 
-p = Path(os.path.dirname(__file__)).resolve()
 
-with open( p / "../dev-data/data/tours-simple.json", "r" ) as fp:
-    tours = json.load(fp)
-
-@router.get('/api/v1/tours')
+@router.get('/')
 async def get_all_tours():
+    tours = tour_controller.get_tours()
     return {
         "status" : 'success',
         "results" : len(tours),
@@ -22,13 +16,9 @@ async def get_all_tours():
     }
 
 
-@router.post('/api/v1/tours')
+@router.post('/')
 async def create_tour(tour:dict):
-    newId = tours[-1]["id"] +1
-    tour["id"] = newId
-    tours.append(tour)
-    with open( p / "../dev-data/data/tours-simple.json", "w+" ) as fp:
-        json.dump(tours, fp)
+    tour = tour_controller.post(tour)
     return {
         "status": 'success',
         "data": {
@@ -36,9 +26,9 @@ async def create_tour(tour:dict):
         } 
     }
 
-@router.get('/api/v1/tours/{id:int}')
-async def get_tour(id:int, response:Response):
-    tour = list(filter(lambda t: t["id"]==id, tours))
+@router.get('/{Id:int}')
+async def get_tour(Id:int, response:Response):
+    tour = tour_controller.get_tour(Id)
     if tour:
         return {
             "status" : 'success',
@@ -49,15 +39,15 @@ async def get_tour(id:int, response:Response):
         return { "status": 'fail', "message": 'Invalid Id' }
 
 
-@router.patch('/api/v1/tours/{id:int}')
-async def update_tour(id:int):
+@router.patch('/{Id:int}')
+async def update_tour(Id:int):
     return {
         "status" : 'success',
         "data" : None,
     }
 
-@router.delete('/api/v1/tours/{id:int}')
-async def delete_tour(id:int):
+@router.delete('/{Id:int}')
+async def delete_tour(Id:int):
     return {
         "status" : 'success',
         "data" : None,
