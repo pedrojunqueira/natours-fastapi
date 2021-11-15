@@ -2,6 +2,7 @@ from pathlib import Path
 import os
 import json
 
+from models.tour_model import Tour
 
 p = Path(os.path.dirname(__file__)).resolve()
 
@@ -16,13 +17,9 @@ def get_tours():
 
 
 def post(tour):
-    tours = get_tours()
-    newId = tours[-1]["id"] + 1
-    tours = get_tours()
-    tour["id"] = newId
-    tours.append(tour)
-    with open(p / "../dev-data/data/tours-simple.json", "w+") as fp:
-        json.dump(tours, fp)
+    #new_tour = {"name": "Hicker", "rating": 4.5, "price": 455}
+    t = Tour(**tour.dict())
+    t.save()
     return tour
 
 

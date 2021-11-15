@@ -2,6 +2,7 @@ import fastapi
 from fastapi import Response, status, Request
 
 from controllers import tour_controller
+from models.tour_model import TourSchema
 
 router = fastapi.APIRouter()
 
@@ -17,7 +18,7 @@ async def get_all_tours():
 
 
 @router.post("/")
-async def create_tour(tour: dict):
+async def create_tour(tour: TourSchema):
     tour = tour_controller.post(tour)
     return {
         "status": "success",
