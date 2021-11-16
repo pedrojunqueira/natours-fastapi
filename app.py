@@ -16,7 +16,6 @@ app.include_router(tour_routes.router, prefix="/api/v1/tours", tags=["tours"])
 app.include_router(user_routes.router, prefix="/api/v1/users", tags=["users"])
 
 
-
 @app.get("/")
 async def heart_beat():
     return {"I ❤️ FastAPI": "🙋🏽‍♂️"}

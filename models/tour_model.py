@@ -1,9 +1,11 @@
 from odmantic import Model
 
+
 class Tours(Model):
     name: str
     rating: float
     price: float
+
     class Config:
         schema_extra = {
             "example": {
@@ -12,6 +14,3 @@ class Tours(Model):
                 "price": 400.3,
             }
         }
-
-
-

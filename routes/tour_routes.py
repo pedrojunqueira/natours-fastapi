@@ -1,4 +1,3 @@
-from os import wait
 import fastapi
 from fastapi import Response, status, Request
 
@@ -43,7 +42,7 @@ async def get_tour(Id: str, response: Response):
 
 
 @router.patch("/{Id:str}")
-async def update_tour(tour:Tours, Id: str):
+async def update_tour(tour: Tours, Id: str):
     tour = await tour_controller.patch_tour(Id, tour)
     return {
         "status": "success",

@@ -7,7 +7,6 @@ from models.tour_model import Tours
 from models.database import engine as db
 
 
-
 async def get_tours():
     tours = await db.find(Tours)
     return tours
