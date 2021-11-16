@@ -1,37 +1,38 @@
 from pathlib import Path
 import os
-import json
 
-from models.tour_model import Tour
+from odmantic import ObjectId
 
-p = Path(os.path.dirname(__file__)).resolve()
-
-with open(p / "../dev-data/data/tours-simple.json", "r") as fp:
-    tours = json.load(fp)
+from models.tour_model import Tours
+from models.database import engine as db
 
 
-def get_tours():
-    with open(p / "../dev-data/data/tours-simple.json", "r") as fp:
-        tours = json.load(fp)
+
+async def get_tours():
+    tours = await db.find(Tours)
     return tours
 
 
-def post(tour):
-    #new_tour = {"name": "Hicker", "rating": 4.5, "price": 455}
-    t = Tour(**tour.dict())
-    t.save()
+async def post(tour):
+    tour = await db.save(tour)
+    return tour.dict()
+
+
+async def get_tour(Id):
+    tour = await db.find_one(Tours, Tours.id == ObjectId(Id))
     return tour
 
 
-def get_tour(Id):
-    tours = get_tours()
-    tour = list(filter(lambda t: t["id"] == Id, tours))
+async def patch_tour(Id, new_tour):
+    tour = await db.find_one(Tours, Tours.id == ObjectId(Id))
+    for k, v in new_tour.dict().items():
+        if k != "id":
+            setattr(tour, k, v)
+    await db.save(tour)
     return tour
 
 
-def patch_tour(Id):
-    pass
-
-
-def delete_tour(Id):
-    pass
+async def delete_tour(Id):
+    tour = await db.find_one(Tours, Tours.id == ObjectId(Id))
+    await db.delete(tour)
+    return tour

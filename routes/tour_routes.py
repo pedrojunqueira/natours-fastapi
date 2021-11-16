@@ -1,15 +1,16 @@
+from os import wait
 import fastapi
 from fastapi import Response, status, Request
 
 from controllers import tour_controller
-from models.tour_model import TourSchema
+from models.tour_model import Tours
 
 router = fastapi.APIRouter()
 
 
 @router.get("/")
 async def get_all_tours():
-    tours = tour_controller.get_tours()
+    tours = await tour_controller.get_tours()
     return {
         "status": "success",
         "results": len(tours),
@@ -18,8 +19,8 @@ async def get_all_tours():
 
 
 @router.post("/")
-async def create_tour(tour: TourSchema):
-    tour = tour_controller.post(tour)
+async def create_tour(tour: Tours):
+    tour = await tour_controller.post(tour)
     return {
         "status": "success",
         "data": {
@@ -28,30 +29,32 @@ async def create_tour(tour: TourSchema):
     }
 
 
-@router.get("/{Id:int}")
-async def get_tour(Id: int, response: Response):
-    tour = tour_controller.get_tour(Id)
+@router.get("/{Id:str}")
+async def get_tour(Id: str, response: Response):
+    tour = await tour_controller.get_tour(Id)
     if tour:
         return {
             "status": "success",
-            "data": tour[0],
+            "data": tour,
         }
     if not tour:
         response.status_code = status.HTTP_404_NOT_FOUND
         return {"status": "fail", "message": "Invalid Id"}
 
 
-@router.patch("/{Id:int}")
-async def update_tour(Id: int):
+@router.patch("/{Id:str}")
+async def update_tour(tour:Tours, Id: str):
+    tour = await tour_controller.patch_tour(Id, tour)
     return {
         "status": "success",
-        "data": None,
+        "tour updated to": tour,
     }
 
 
-@router.delete("/{Id:int}")
-async def delete_tour(Id: int):
+@router.delete("/{Id:str}")
+async def delete_tour(Id: str):
+    tour = await tour_controller.delete_tour(Id)
     return {
         "status": "success",
-        "data": None,
+        "tour deleted": tour,
     }

@@ -1,16 +1,6 @@
-import mongoengine
-from pydantic import BaseModel
+from odmantic import Model
 
-class Tour(mongoengine.Document):
-    name = mongoengine.StringField()
-    rating = mongoengine.DecimalField()
-    price = mongoengine.DecimalField()
-
-    meta = {
-        "collection": "tours",
-    }
-
-class TourSchema(BaseModel):
+class Tours(Model):
     name: str
     rating: float
     price: float
