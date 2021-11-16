@@ -1,6 +1,3 @@
-from pathlib import Path
-import os
-
 from odmantic import ObjectId
 
 from models.tour_model import Tours
