@@ -1,5 +1,5 @@
 import fastapi
-from fastapi import Response, status, Request
+from fastapi import Response, status, Request, Body
 
 from controllers import tour_controller
 from models.tour_model import Tours
@@ -42,13 +42,17 @@ async def get_tour(Id: str, response: Response):
 
 
 @router.patch("/{Id:str}")
-async def update_tour(tour: Tours, Id: str):
+async def update_tour(Id: str, response: Response, tour: dict = Body(...)):
     tour = await tour_controller.patch_tour(Id, tour)
-    return {
+    if tour:
+        return {
         "status": "success",
         "tour updated to": tour,
-    }
-
+            }
+    if not tour:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return {"status": "fail", "message": "Invalid Key"}
+    
 
 @router.delete("/{Id:str}")
 async def delete_tour(Id: str):
