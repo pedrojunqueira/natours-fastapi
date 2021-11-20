@@ -1,9 +1,8 @@
 import fastapi
-from fastapi import Response, status, Request, Body, HTTPException
-from odmantic import ObjectId
-
 from controllers import tour_controller
+from fastapi import Body, HTTPException, Request, Response, status
 from models.tour_model import Tours
+from odmantic import ObjectId
 
 router = fastapi.APIRouter()
 

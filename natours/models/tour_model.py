@@ -1,7 +1,7 @@
-from typing import List, Optional
 from datetime import datetime
+from typing import List, Optional
 
-from odmantic import Model, Field
+from odmantic import Field, Model
 
 
 class Tours(Model):
