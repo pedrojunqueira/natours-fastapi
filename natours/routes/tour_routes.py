@@ -1,7 +1,7 @@
 import fastapi
-from controllers import tour_controller
+from natours.controllers import tour_controller
 from fastapi import Body, HTTPException, Request, Response, status
-from models.tour_model import Tours
+from natours.models.tour_model import Tours
 from odmantic import ObjectId
 
 router = fastapi.APIRouter()

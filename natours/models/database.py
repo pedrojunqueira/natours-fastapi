@@ -1,4 +1,8 @@
-from config import settings
+from ..config import settings
+import sys
+print(sys.path)
+import motor
+print(motor.__path__)
 from motor.motor_asyncio import AsyncIOMotorClient
 from odmantic import AIOEngine
 

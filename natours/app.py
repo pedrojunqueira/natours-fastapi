@@ -1,7 +1,6 @@
 
 from fastapi import FastAPI, Request
-from routes import tour_routes, user_routes, heart
-
+from natours.routes import tour_routes, user_routes, heart
 
 app = FastAPI()
 

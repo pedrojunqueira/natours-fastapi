@@ -1,8 +1,8 @@
 from datetime import datetime
 
 from fastapi.exceptions import HTTPException
-from models.database import engine as db
-from models.tour_model import Tours
+from natours.models.database import engine as db
+from natours.models.tour_model import Tours
 from odmantic import ObjectId
 
 
