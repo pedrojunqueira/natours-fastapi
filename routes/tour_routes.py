@@ -11,13 +11,13 @@ router = fastapi.APIRouter()
 @router.get("/tour-stats")
 async def get_tour_stats():
     stats = await tour_controller.tour_stats()
-    return {"tour stats": stats }
+    return {"tour stats": stats}
 
 
 @router.get("/monthly-plan/{year:int}")
-async def monthly_plan(year:int):
+async def monthly_plan(year: int):
     plan = await tour_controller.get_monthly_plan(year)
-    return {f"year plan for {year}": plan }
+    return {f"year plan for {year}": plan}
 
 
 @router.get("/")
@@ -61,11 +61,11 @@ async def update_tour(Id: ObjectId, tour_patch: dict = Body(...)):
         raise HTTPException(404, "could not find item")
     if tour:
         return {
-        "status": "success",
-        "tour updated to": tour,
-            }
-    
-       
+            "status": "success",
+            "tour updated to": tour,
+        }
+
+
 @router.delete("/{Id:str}")
 async def delete_tour(Id: ObjectId):
     tour = await tour_controller.delete_tour(Id)
@@ -75,5 +75,3 @@ async def delete_tour(Id: ObjectId):
         "status": "success",
         "tour deleted": tour,
     }
-
-
