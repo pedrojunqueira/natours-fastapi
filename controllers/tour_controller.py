@@ -1,5 +1,6 @@
 from datetime import datetime
-from odmantic import ObjectId, query
+from fastapi.exceptions import HTTPException
+from odmantic import ObjectId
 
 from models.tour_model import Tours
 from models.database import engine as db
@@ -31,18 +32,19 @@ async def get_tour(Id):
 
 async def patch_tour(Id, new_tour):
     tour = await db.find_one(Tours, Tours.id == ObjectId(Id))
-    if validate_patch_body(new_tour, tour):
-        for k, v in new_tour.items():
-            if k != "id":
-                setattr(tour, k, v)
-        await db.save(tour)
-        return tour
-    return None
+    if tour:
+      if validate_patch_body(new_tour, tour):
+          for k, v in new_tour.items():
+              if k != "id":
+                  setattr(tour, k, v)
+          await db.save(tour)
+    return tour
 
 
 async def delete_tour(Id):
     tour = await db.find_one(Tours, Tours.id == ObjectId(Id))
-    await db.delete(tour)
+    if tour:
+      await db.delete(tour)
     return tour
 
 
@@ -76,6 +78,8 @@ async def tour_stats():
     return stats
 
 async def get_monthly_plan(year):
+    if year > 9999:
+      raise HTTPException(404, f"{year} is not a valid year range")
     tours = db.get_collection(Tours)
     plan = await tours.aggregate([
       {

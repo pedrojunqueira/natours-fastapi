@@ -1,5 +1,6 @@
 import fastapi
-from fastapi import Response, status, Request, Body
+from fastapi import Response, status, Request, Body, HTTPException
+from odmantic import ObjectId
 
 from controllers import tour_controller
 from models.tour_model import Tours
@@ -7,11 +8,16 @@ from models.tour_model import Tours
 router = fastapi.APIRouter()
 
 
-
 @router.get("/tour-stats")
 async def get_tour_stats():
     stats = await tour_controller.tour_stats()
     return {"tour stats": stats }
+
+
+@router.get("/monthly-plan/{year:int}")
+async def monthly_plan(year:int):
+    plan = await tour_controller.get_monthly_plan(year)
+    return {f"year plan for {year}": plan }
 
 
 @router.get("/")
@@ -37,40 +43,37 @@ async def create_tour(tour: Tours):
 
 
 @router.get("/{Id:str}")
-async def get_tour(Id: str, response: Response):
+async def get_tour(Id: ObjectId):
     tour = await tour_controller.get_tour(Id)
+    if not tour:
+        raise HTTPException(404, "could not find item")
     if tour:
         return {
             "status": "success",
             "data": tour,
         }
-    if not tour:
-        response.status_code = status.HTTP_404_NOT_FOUND
-        return {"status": "fail", "message": "Invalid Id"}
 
 
 @router.patch("/{Id:str}")
-async def update_tour(Id: str, response: Response, tour: dict = Body(...)):
-    tour = await tour_controller.patch_tour(Id, tour)
+async def update_tour(Id: ObjectId, tour_patch: dict = Body(...)):
+    tour = await tour_controller.patch_tour(Id, tour_patch)
+    if not tour:
+        raise HTTPException(404, "could not find item")
     if tour:
         return {
         "status": "success",
         "tour updated to": tour,
             }
-    if not tour:
-        response.status_code = status.HTTP_404_NOT_FOUND
-        return {"status": "fail", "message": "Invalid Key"}
     
-
+       
 @router.delete("/{Id:str}")
-async def delete_tour(Id: str):
+async def delete_tour(Id: ObjectId):
     tour = await tour_controller.delete_tour(Id)
+    if not tour:
+        raise HTTPException(404, "could not find item")
     return {
         "status": "success",
         "tour deleted": tour,
     }
 
-@router.get("/monthly-plan/{year:int}")
-async def monthly_plan(year:int):
-    plan = await tour_controller.get_monthly_plan(year)
-    return {"year plan": plan }
+
