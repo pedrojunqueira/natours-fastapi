@@ -21,7 +21,7 @@ def query_params(query):
     return sort_by, skip, limit
 
 
-async def get_tours(query):
+async def get_tours(query: dict):
     sort_by, skip, limit = query_params(query)
     tours = await db.find(Tours, sort=sort_by, skip=skip, limit=limit)
     return tours
