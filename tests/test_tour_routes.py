@@ -94,7 +94,7 @@ async def test_tour_stats(test_client: TestClient, engine: AIOEngine):
     }
 
 
-async def test_tour_stats(test_client: TestClient, engine: AIOEngine):
+async def test_monthly_plan(test_client: TestClient, engine: AIOEngine):
     year = 2021
     response = await test_client.get(f"/api/v1/tours/monthly-plan/{year}")
     assert response.status_code == 200
