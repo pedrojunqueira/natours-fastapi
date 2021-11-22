@@ -37,6 +37,12 @@ async def get_tour(Id):
     return tour
 
 
+def validate_patch_body(patch, model):
+    keys = patch.keys()
+    model_keys = model.dict()
+    return all(k in model_keys for k in keys)
+
+
 async def patch_tour(Id, new_tour):
     tour = await db.find_one(Tours, Tours.id == ObjectId(Id))
     if tour:
@@ -53,12 +59,6 @@ async def delete_tour(Id):
     if tour:
         await db.delete(tour)
     return tour
-
-
-def validate_patch_body(patch, model):
-    keys = patch.keys()
-    model_keys = model.dict()
-    return all(k in model_keys for k in keys)
 
 
 async def tour_stats():

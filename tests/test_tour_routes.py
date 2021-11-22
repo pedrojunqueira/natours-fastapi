@@ -13,7 +13,6 @@ from natours.models.tour_model import Tours
 pytestmark = pytest.mark.asyncio
 
 
-
 @pytest.fixture
 async def test_client(engine: AIOEngine) -> TestClient:
     with patch("natours.models.database.engine", engine):
@@ -22,7 +21,9 @@ async def test_client(engine: AIOEngine) -> TestClient:
         async with TestClient(app) as client:
             yield client
 
+
 # test happy path
+
 
 async def test_heart_beat(test_client: TestClient):
     response = await test_client.get("/")
@@ -95,13 +96,14 @@ async def test_tour_stats(test_client: TestClient, engine: AIOEngine):
     assert sum([stat["numTours"] for stat in data["tour stats"]]) == 9
 
 
-async def test_monthly_plan(test_client: TestClient, engine: AIOEngine):
-    year = 2021
+@pytest.mark.parametrize("year, status_code", [(2021, 200), (99999, 404)])
+async def test_monthly_plan(test_client: TestClient, year: int, status_code: int):
     response = await test_client.get(f"/api/v1/tours/monthly-plan/{year}")
-    assert response.status_code == 200
+    assert response.status_code == status_code
     data = response.json()
-    assert isinstance(data[f"year plan for {year}"], list)
-    
+    print(data)
+
+
 async def test_delete_tour(test_client: TestClient, engine: AIOEngine):
     tour = await engine.find(Tours)
     tour_id = tour[0].dict()["id"]
@@ -111,25 +113,61 @@ async def test_delete_tour(test_client: TestClient, engine: AIOEngine):
     tours = await engine.find(Tours)
     assert len(tours) == 8
 
+
 # test errors and fails
 
-async def test_inexistent_path(test_client: TestClient):
-    response = await test_client.get("/it-is-impossible-an-api-end-point-be-called-like-this")
-    assert response.status_code == 404
-    assert response.json() == {'detail': 'Not Found'}
 
-async def test_get_tour_non_existing_id_but_valid_object_id(test_client: TestClient, engine: AIOEngine):
+async def test_inexistent_path(test_client: TestClient):
+    response = await test_client.get(
+        "/it-is-impossible-an-api-end-point-be-called-like-this"
+    )
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Not Found"}
+
+
+async def test_get_tour_non_existing_id_but_valid_object_id(
+    test_client: TestClient, engine: AIOEngine
+):
     tour = await engine.find(Tours)
     tour_id = tour[0].dict()["id"]
     tour_id_str = f"{tour_id}"
     response = await test_client.get(f"/api/v1/tours/{tour_id_str[:-8]}12345678")
-    assert response.json() == {'detail': 'could not find item'}
-    
-async def test_get_tour_with_invalid_object_id(test_client: TestClient, engine: AIOEngine):
+    assert response.json() == {"detail": "could not find item"}
+
+
+async def test_get_tour_with_invalid_object_id(
+    test_client: TestClient, engine: AIOEngine
+):
     tour = await engine.find(Tours)
     tour_id = tour[0].dict()["id"]
     tour_id_str = f"{tour_id}"
     response = await test_client.get(f"/api/v1/tours/{tour_id_str[:-1]}")
     data = response.json()
-    assert data['detail'][0]["msg"] ==  'invalid ObjectId specified'
+    assert data["detail"][0]["msg"] == "invalid ObjectId specified"
+
+
+async def test_patch_tour_with_invalid_object_id(
+    test_client: TestClient, engine: AIOEngine
+):
+    tour = await engine.find(Tours)
+    tour_id = tour[0].dict()["id"]
+    tour_id_str = f"{tour_id}"
+    response = await test_client.patch(
+        f"/api/v1/tours/{tour_id_str[:-4]}4321", json=dict(name="this is the tour new name", duration=444)
+    )
+    assert response.status_code == 404
+    response = await test_client.patch(
+        f"/api/v1/tours/{tour_id_str[:-4]}", json=dict(name="this is the tour new name", duration=444)
+    )
+    assert response.status_code == 422
+
+
+async def test_delete_tour_with_invalid_object_id(test_client: TestClient, engine: AIOEngine):
+    tour = await engine.find(Tours)
+    tour_id = tour[0].dict()["id"]
+    tour_id_str = f"{tour_id}"
+    response = await test_client.delete(f"/api/v1/tours/{tour_id_str[:-4]}4321")
+    assert response.status_code == 404
+    response = await test_client.delete(f"/api/v1/tours/{tour_id_str[:-4]}")
+    assert response.status_code == 422
     

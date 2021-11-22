@@ -1,0 +1,7 @@
+[run]
+branch = true
+omit = */tests/*, */natours/controllers/user_controller.py, */natours/populate_db.py, *natours/routes/user_routes.py 
+source = .
+
+[report]
+show_missing = true
