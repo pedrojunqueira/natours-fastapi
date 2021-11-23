@@ -1,7 +1,22 @@
+from sys import implementation
 import fastapi
+
+
+from natours.models.user_model import Users
+from natours.controllers import authentication_controller
 
 router = fastapi.APIRouter()
 
+
+@router.post("/signup")
+async def sign_up(user: Users):
+    user = await authentication_controller.signup(user)
+
+    return {"status": "success", "data": user}
+
+@router.post("/login")
+async def log_in():
+    return {"status": "error", "message": "not yet implemented"}
 
 @router.get("/")
 async def get_all_users():

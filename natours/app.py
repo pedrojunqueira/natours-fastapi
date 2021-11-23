@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request
 from natours.routes import tour_routes, user_routes, heart
 
+
 app = FastAPI()
 
 
@@ -25,3 +26,4 @@ async def add_some_middleware(request: Request, call_next):
     response = await call_next(request)
     print(f"hello from middleware 🧸")
     return response
+
