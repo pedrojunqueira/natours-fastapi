@@ -12,9 +12,11 @@ from natours.config import settings
 
 router = fastapi.APIRouter()
 
+# TODO
+# enforce unique username and email
+# create a username separate from name...
 @router.post("/signup")
 async def sign_up(user: Users):
-    print(user.password)
     user = await authentication_controller.signup(user)
 
     return {"status": "success", "data": user}
