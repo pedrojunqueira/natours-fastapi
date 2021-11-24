@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     DATABASE_PASSWORD: str
     DATABASE: str
     DATABASE_LOCAL: str
+    SECRET_KEY: str
+    ALGORITHM: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
 
     class Config:
         env_file = p / ".env"

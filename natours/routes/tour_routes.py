@@ -6,7 +6,6 @@ from odmantic import ObjectId
 
 router = fastapi.APIRouter()
 
-
 @router.get("/tour-stats")
 async def get_tour_stats():
     stats = await tour_controller.tour_stats()

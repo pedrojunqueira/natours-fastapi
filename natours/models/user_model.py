@@ -10,7 +10,7 @@ class Users(Model):
     email: str
     photo: Optional[str]
     password: str
-    confirm_password: str
+    confirm_password: Optional[str]
     password_changed_at: Optional[datetime]
     password_reset_token: Optional[str]
     password_reset_expire: Optional[str]
