@@ -6,7 +6,9 @@ from pydantic import validator
 
 
 class Users(Model):
-    name: str
+    username: str
+    name: Optional[str]
+    lastname: Optional[str]
     email: str
     photo: Optional[str]
     password: str

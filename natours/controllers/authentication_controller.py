@@ -22,7 +22,7 @@ def verify_password(plain_password, hashed_password):
 
 
 async def authenticate_user(username: str, password: str):
-    user = await db.find_one(Users, Users.name == username) 
+    user = await db.find_one(Users, Users.username == username) 
     if not user:
         return False
     if not verify_password(password, user.password):
@@ -54,16 +54,25 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         token_data = TokenData(username=username)
     except JWTError:
         raise credentials_exception
-    user = await db.find_one(Users, Users.name == token_data.username)
+    user = await db.find_one(Users, Users.username == token_data.username)
     if user is None:
         raise credentials_exception
+    return user
+
+async def verify_non_existing_user(user):
+    user_name = await db.find_one(Users, Users.username == user.username)
+    if user_name:
+        raise HTTPException(404, f"{user_name.username} already exist chose another one")
+    user_email = await db.find_one(Users, Users.email == user.email)
+    if user_email:
+        raise HTTPException(404, f"{user_email.email} already exist chose another one")
     return user
 
 async def signup(user):
     hashed_password = get_password_hash(user.password)
     user.password = hashed_password
     user.confirm_password = hashed_password
-    user = Users(name = user.name,
+    user = Users(username = user.username,
                 email = user.email,
                 password = user.password,
                 confirm_password = user.confirm_password

@@ -12,14 +12,14 @@ from natours.config import settings
 
 router = fastapi.APIRouter()
 
-# TODO
-# enforce unique username and email
-# create a username separate from name...
 @router.post("/signup")
 async def sign_up(user: Users):
-    user = await authentication_controller.signup(user)
-
-    return {"status": "success", "data": user}
+    verified_non_existing_user = await authentication_controller.verify_non_existing_user(user)
+    if verified_non_existing_user:
+        created_user = await authentication_controller.signup(user)
+        return {"status": "success", "data": created_user}
+    else:
+        raise HTTPException(404, f"email or user already exist")
 
 @router.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
@@ -31,7 +31,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token_expires = timedelta(minutes= settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = authentication_controller.create_access_token(data={"sub": user.name}, expires_delta=access_token_expires)
+    access_token = authentication_controller.create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
     return {"access_token": access_token, "token_type": "bearer"}
 
 
