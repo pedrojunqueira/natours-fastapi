@@ -3,3 +3,4 @@ __pycache__
 .env
 populate_db*.py
 .coverage
+.vscode

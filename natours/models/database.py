@@ -1,6 +1,7 @@
-from ..config import settings
 from motor.motor_asyncio import AsyncIOMotorClient
 from odmantic import AIOEngine
+
+from natours.config import settings
 
 client = AsyncIOMotorClient(settings.DATABASE_LOCAL)
 

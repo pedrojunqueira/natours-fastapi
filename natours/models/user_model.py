@@ -18,10 +18,8 @@ class Users(Model):
     password_reset_expire: Optional[str]
     createdAt: datetime = Field(default=datetime.now())
 
-    @validator('confirm_password')
+    @validator("confirm_password")
     def passwords_match(cls, v, values, **kwargs):
-        if 'password' in values and v != values['password']:
-            raise ValueError('passwords do not match')
+        if "password" in values and v != values["password"]:
+            raise ValueError("passwords do not match")
         return v
-
-

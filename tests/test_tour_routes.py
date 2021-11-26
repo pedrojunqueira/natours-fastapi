@@ -1,13 +1,13 @@
-from unittest.mock import patch
-from pathlib import Path
 import json
 import os
 from datetime import datetime
+from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 from async_asgi_testclient import TestClient
-
 from odmantic.engine import AIOEngine
+
 from natours.models.tour_model import Tours
 
 pytestmark = pytest.mark.asyncio
@@ -153,16 +153,20 @@ async def test_patch_tour_with_invalid_object_id(
     tour_id = tour[0].dict()["id"]
     tour_id_str = f"{tour_id}"
     response = await test_client.patch(
-        f"/api/v1/tours/{tour_id_str[:-4]}4321", json=dict(name="this is the tour new name", duration=444)
+        f"/api/v1/tours/{tour_id_str[:-4]}4321",
+        json=dict(name="this is the tour new name", duration=444),
     )
     assert response.status_code == 404
     response = await test_client.patch(
-        f"/api/v1/tours/{tour_id_str[:-4]}", json=dict(name="this is the tour new name", duration=444)
+        f"/api/v1/tours/{tour_id_str[:-4]}",
+        json=dict(name="this is the tour new name", duration=444),
     )
     assert response.status_code == 422
 
 
-async def test_delete_tour_with_invalid_object_id(test_client: TestClient, engine: AIOEngine):
+async def test_delete_tour_with_invalid_object_id(
+    test_client: TestClient, engine: AIOEngine
+):
     tour = await engine.find(Tours)
     tour_id = tour[0].dict()["id"]
     tour_id_str = f"{tour_id}"
@@ -170,4 +174,3 @@ async def test_delete_tour_with_invalid_object_id(test_client: TestClient, engin
     assert response.status_code == 404
     response = await test_client.delete(f"/api/v1/tours/{tour_id_str[:-4]}")
     assert response.status_code == 422
-    

@@ -1,10 +1,12 @@
 import fastapi
-from natours.controllers import tour_controller
 from fastapi import Body, HTTPException, Request, Response, status
-from natours.models.tour_model import Tours
 from odmantic import ObjectId
 
+from natours.controllers import tour_controller
+from natours.models.tour_model import Tours
+
 router = fastapi.APIRouter()
+
 
 @router.get("/tour-stats")
 async def get_tour_stats():

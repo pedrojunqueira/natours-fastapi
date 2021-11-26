@@ -6,7 +6,6 @@ from uuid import uuid4
 
 import pytest
 from motor.motor_asyncio import AsyncIOMotorClient
-
 from odmantic.engine import AIOEngine
 
 try:

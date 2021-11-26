@@ -7,4 +7,3 @@ router = fastapi.APIRouter()
 async def heart_beat():
 
     return {"I ❤️ FastAPI": "🙋🏽‍♂️"}
-

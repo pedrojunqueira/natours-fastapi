@@ -1,9 +1,10 @@
 from datetime import datetime
 
 from fastapi.exceptions import HTTPException
+from odmantic import ObjectId
+
 from natours.models.database import engine as db
 from natours.models.tour_model import Tours
-from odmantic import ObjectId
 
 
 def query_params(query):
