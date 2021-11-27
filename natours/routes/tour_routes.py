@@ -1,9 +1,12 @@
 import fastapi
-from fastapi import Body, HTTPException, Request, Response, status
+from fastapi import Body, HTTPException, Request, Security
 from odmantic import ObjectId
 
 from natours.controllers import tour_controller
+from natours.controllers import authentication_controller
 from natours.models.tour_model import Tours
+from natours.models.user_model import Users
+
 
 router = fastapi.APIRouter()
 
@@ -21,7 +24,12 @@ async def monthly_plan(year: int):
 
 
 @router.get("/")
-async def get_all_tours(request: Request, page: int = 1, limit: int = 100):
+async def get_all_tours(
+    request: Request, 
+    current_user: Users = Security(authentication_controller.get_current_user, scopes=["tours"]) ,
+    page: int = 1, limit: int = 100,
+    ):
+
     query = request.query_params._dict
     tours = await tour_controller.get_tours(query)
     return {

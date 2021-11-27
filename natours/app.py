@@ -21,8 +21,8 @@ def create_application() -> FastAPI:
 app = create_application()
 
 
-@app.middleware("http")
-async def add_some_middleware(request: Request, call_next):
-    response = await call_next(request)
-    print(f"hello from middleware 🧸")
-    return response
+# @app.middleware("http")
+# async def add_some_middleware(request: Request, call_next):
+#     response = await call_next(request)
+#     print(f"hello from middleware 🧸")
+#     return response

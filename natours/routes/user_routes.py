@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 import fastapi
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Security
 from fastapi.security import OAuth2PasswordRequestForm
 
 from natours.config import settings
@@ -37,16 +37,21 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         )
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = authentication_controller.create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
+        data={"sub": user.username, "scopes": form_data.scopes}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@router.get("/me/", response_model=Users)
+@router.get("/me/")
 async def read_users_me(
-    current_user: Users = Depends(authentication_controller.get_current_user),
+    current_user: Users = Security(authentication_controller.get_current_user, scopes=["me"])
 ):
-    return current_user
+    response = {"username": current_user.username,
+                "email": current_user.email,
+                "full name": f"{current_user.name if current_user.name else ''} {current_user.lastname if current_user.lastname else ''}"
+                }
+    
+    return response
 
 
 @router.post("/login")
