@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from typing import Optional
+import uuid
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, SecurityScopes
@@ -107,3 +108,28 @@ async def signup(user):
     )
     user = await db.save(user)
     return user.dict()
+
+def create_password_reset_token():
+    return uuid.uuid4().hex
+
+def hash_reset_token(token):
+    return get_password_hash(token)
+
+async def check_existing_email(address):
+    user = await db.find_one(Users, Users.email == address)
+    return user
+
+
+async def save_reset_password_token_to_db(address):
+    user = await check_existing_email(address)
+
+    if not user:
+        raise HTTPException(404, f"email {address} not found")
+
+    token = create_password_reset_token()
+
+    user.password_reset_token = hash_reset_token(token)
+    user.password_reset_expire = datetime.now() + timedelta(minutes=20)
+    await db.save(user)
+
+    return token

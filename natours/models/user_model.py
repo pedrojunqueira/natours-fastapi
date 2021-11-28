@@ -15,7 +15,7 @@ class Users(Model):
     confirm_password: Optional[str]
     password_changed_at: Optional[datetime]
     password_reset_token: Optional[str]
-    password_reset_expire: Optional[str]
+    password_reset_expire: Optional[datetime]
     createdAt: datetime = Field(default=datetime.now())
 
     @validator("confirm_password")
