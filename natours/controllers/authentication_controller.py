@@ -166,3 +166,12 @@ async def save_reset_password(user, passwords):
     user.password_changed_at = datetime.now()
     user = await db.save(user)
     return user
+
+
+async def save_updated_password(user, passwords):
+    hashed_password = get_password_hash(passwords.password)
+    user.password = hashed_password
+    user.confirm_password = hashed_password
+    user.password_changed_at = datetime.now()
+    user = await db.save(user)
+    return user

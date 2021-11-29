@@ -39,7 +39,7 @@ async def send_password_reset_confirmation(email):
     message = MessageSchema(
         subject="you changed your password",
         recipients=[email],
-        body=f"<p> password for email: {email} was successfully reset </p> ",
+        body=f"<p> password for email: {email} was successfully changed </p> ",
         subtype="html",
     )
     client = FastMail(conf)

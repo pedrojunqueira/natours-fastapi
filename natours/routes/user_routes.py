@@ -102,17 +102,14 @@ async def update_my_password(
     ),
 ):
 
-    # TODO
+    if not  authentication_controller.verify_password(passwords.current_password, current_user.password):
+        raise HTTPException(404, f"current password is incorrect")
 
-    # get current user
+    user = await authentication_controller.save_updated_password(current_user, passwords)
 
-    # check if current user password is correct
+    await email_controller.send_password_reset_confirmation(user.email)
 
-    # update current user password
-
-    # send email confirming that user just updated password
-
-    return {"status": "error", "message": "not yet implemented"}
+    return {"status": "success", "message": f"password successfully updated for {user.email}"}
 
 
 @router.post("/login")
