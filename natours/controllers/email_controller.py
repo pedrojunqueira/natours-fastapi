@@ -35,7 +35,7 @@ async def send_password_reset_email(email, html):
 
 async def send_password_reset_confirmation(email):
     message = MessageSchema(
-        subject="reset password token for natours app (expire in 15 minutes)",
+        subject="you changed your password",
         recipients=[email],
         body= f"<p> password for email: {email} was successfully reset </p> " ,
         subtype="html"

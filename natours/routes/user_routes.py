@@ -8,7 +8,7 @@ from starlette.requests import Request
 from natours.config import settings
 from natours.controllers import authentication_controller
 from natours.controllers import email_controller
-from natours.models.security_model import EmailSchema, PasswordSchema, Token
+from natours.models.security_model import EmailSchema, PasswordSchema, Token, UpdatePasswordSchema
 from natours.models.user_model import Users
 
 router = fastapi.APIRouter()
@@ -44,7 +44,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@router.get("/me/")
+@router.get("/me")
 async def read_users_me(
     current_user: Users = Security(authentication_controller.get_current_user, scopes=["me"])
 ):
@@ -83,6 +83,24 @@ async def reset_password(token:str, new_passwords: PasswordSchema):
     await email_controller.send_password_reset_confirmation(user.email)
 
     return {"status": "success", "message": "your password was successfull reset"}
+
+
+@router.patch("/updatemypassword")
+async def update_my_password(passwords: UpdatePasswordSchema, 
+                    current_user: Users = Security(authentication_controller.get_current_user, scopes=["me"])):
+    
+    # TODO
+
+    # get current user
+
+    # check if current user password is correct
+
+    # update current user password
+
+    # send email confirming that user just updated password
+
+
+    return {"status": "error", "message": "not yet implemented"}
 
 
 @router.post("/login")

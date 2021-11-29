@@ -19,3 +19,8 @@ class PasswordSchema(BaseModel):
     password: str
     confirm_password: str
 
+
+class UpdatePasswordSchema(BaseModel):
+    current_password: str
+    password: str
+    confirm_password: str

@@ -106,6 +106,7 @@ async def signup(user):
         email=user.email,
         password=user.password,
         confirm_password=user.confirm_password,
+        password_changed_at = datetime.now()
     )
     user = await db.save(user)
     return user.dict()
