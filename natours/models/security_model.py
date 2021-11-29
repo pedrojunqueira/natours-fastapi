@@ -13,3 +13,9 @@ class TokenData(BaseModel):
 
 class EmailSchema(BaseModel):
     email: EmailStr
+
+
+class PasswordSchema(BaseModel):
+    password: str
+    confirm_password: str
+

@@ -1,15 +1,14 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import fastapi
 from fastapi import Depends, HTTPException, status, Security
 from fastapi.security import OAuth2PasswordRequestForm
 from starlette.requests import Request
-from starlette.responses import Response
 
 from natours.config import settings
 from natours.controllers import authentication_controller
 from natours.controllers import email_controller
-from natours.models.security_model import EmailSchema, Token
+from natours.models.security_model import EmailSchema, PasswordSchema, Token
 from natours.models.user_model import Users
 
 router = fastapi.APIRouter()
@@ -67,24 +66,23 @@ async def forgot_password(email:EmailSchema, request: Request):
     
     html = email_controller.render_email_message(reset_url)
 
-    await email_controller.send_email(address, html)
+    await email_controller.send_password_reset_email(address, html)
 
     return {"status": "success", "message": f"email sent to {address} "}
 
 
-@router.post("/resetpassword/{token:str}")
-async def reset_password(token:str):
-    #get user based on token
+@router.patch("/resetpassword/{token:str}")
+async def reset_password(token:str, new_passwords: PasswordSchema):
 
-    #if there is a user and token not expired set the password
+    user = await authentication_controller.get_token_user(token)
 
-    #udate password changed at property
+    await authentication_controller.save_reset_password(user, new_passwords)
 
-    #log the user in
+    #log the user in TODO
 
-    #send an email saying password was confirmed
+    await email_controller.send_password_reset_confirmation(user.email)
 
-    return {"status": "success", "message": f"this is your secret token: {token}"}
+    return {"status": "success", "message": "your password was successfull reset"}
 
 
 @router.post("/login")

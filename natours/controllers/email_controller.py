@@ -23,11 +23,21 @@ def render_email_message(reset_url):
 
     return html
 
-async def send_email(email, html):
+async def send_password_reset_email(email, html):
     message = MessageSchema(
         subject="reset password token for natours app (expire in 15 minutes)",
         recipients=[email],
         body=html,
+        subtype="html"
+        )
+    client = FastMail(conf)
+    await client.send_message(message)
+
+async def send_password_reset_confirmation(email):
+    message = MessageSchema(
+        subject="reset password token for natours app (expire in 15 minutes)",
+        recipients=[email],
+        body= f"<p> password for email: {email} was successfully reset </p> " ,
         subtype="html"
         )
     client = FastMail(conf)

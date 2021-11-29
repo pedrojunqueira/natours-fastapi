@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from typing import Optional
 import uuid
+import hashlib
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, SecurityScopes
@@ -113,12 +114,13 @@ def create_password_reset_token():
     return uuid.uuid4().hex
 
 def hash_reset_token(token):
-    return get_password_hash(token)
+    hash_object = hashlib.sha256(token.encode())
+    return hash_object.hexdigest()
+    
 
 async def check_existing_email(address):
     user = await db.find_one(Users, Users.email == address)
     return user
-
 
 async def save_reset_password_token_to_db(address):
     user = await check_existing_email(address)
@@ -133,3 +135,24 @@ async def save_reset_password_token_to_db(address):
     await db.save(user)
 
     return token
+
+async def get_token_user(token):
+    hashed_token = hash_reset_token(token)
+    user = await db.find_one(Users, (Users.password_reset_token == hashed_token) 
+                        and ( datetime.now() < Users.password_reset_expire )
+                        )
+    if not user:
+        raise HTTPException(404, f"token expired or not valid")
+    
+    return user
+
+
+async def save_reset_password(user, passwords):
+    hashed_password = get_password_hash(passwords.password)
+    user.password = hashed_password
+    user.confirm_password = hashed_password
+    user.password_reset_token = None
+    user.password_reset_expire = None
+    user.password_changed_at = datetime.now()
+    user = await db.save(user)
+    return user
