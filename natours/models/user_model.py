@@ -2,14 +2,15 @@ from datetime import datetime
 from typing import Optional
 
 from odmantic import Field, Model
-from pydantic import validator
+from pydantic import validator, EmailStr
 
 
 class Users(Model):
     username: str
+    email: EmailStr
     name: Optional[str]
     lastname: Optional[str]
-    email: str
+    disabled: Optional[bool]
     photo: Optional[str]
     password: str
     confirm_password: Optional[str]

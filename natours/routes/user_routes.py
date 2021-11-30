@@ -1,12 +1,11 @@
 from datetime import timedelta
 
 import fastapi
-from fastapi import Depends, HTTPException, status, Security
+from fastapi import Depends, HTTPException, status, Security, Body, Request
 from fastapi.security import OAuth2PasswordRequestForm
-from starlette.requests import Request
 
 from natours.config import settings
-from natours.controllers import authentication_controller
+from natours.controllers import authentication_controller, user_controller
 from natours.controllers import email_controller
 from natours.models.security_model import (
     EmailSchema,
@@ -53,7 +52,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 @router.get("/me")
 async def read_users_me(
     current_user: Users = Security(
-        authentication_controller.get_current_user, scopes=["me"]
+        authentication_controller.get_current_active_user, scopes=["me"]
     )
 ):
     response = {
@@ -87,9 +86,9 @@ async def reset_password(token: str, new_passwords: PasswordSchema):
 
     await authentication_controller.save_reset_password(user, new_passwords)
 
-    # log the user in TODO
-
     await email_controller.send_password_reset_confirmation(user.email)
+    
+    # log the user in TODO
 
     return {"status": "success", "message": "your password was successfull reset"}
 
@@ -98,7 +97,7 @@ async def reset_password(token: str, new_passwords: PasswordSchema):
 async def update_my_password(
     passwords: UpdatePasswordSchema,
     current_user: Users = Security(
-        authentication_controller.get_current_user, scopes=["me"]
+        authentication_controller.get_current_active_user, scopes=["me"]
     ),
 ):
 
@@ -109,8 +108,33 @@ async def update_my_password(
 
     await email_controller.send_password_reset_confirmation(user.email)
 
+    # log the user in TODO
+
     return {"status": "success", "message": f"password successfully updated for {user.email}"}
 
+
+@router.patch("/updateme")
+async def update_me(current_user: Users = Security(
+        authentication_controller.get_current_active_user, scopes=["me"]
+    ),
+    user_patch: dict = Body(...)):
+
+    # only update fields that are related to authentication
+
+    user = await user_controller.patch_user(current_user, user_patch)
+
+    return {"status": "success", "data updated for user": user}
+
+
+
+@router.delete("/deleteme")
+async def delete_me(current_user: Users = Security(
+        authentication_controller.get_current_active_user, scopes=["me"]
+    )):
+
+    user = await user_controller.delete_me(current_user)
+
+    return {"status": "success", "message": f"user {user.username} successfully deleted"}
 
 @router.post("/login")
 async def log_in():

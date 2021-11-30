@@ -87,6 +87,11 @@ async def get_current_user(
             )
     return user
 
+async def get_current_active_user(current_user: Users = Depends(get_current_user)):
+    if current_user.disabled:
+        raise HTTPException(status_code=400, detail="Inactive user")
+    return current_user
+
 
 async def verify_non_existing_user(user):
     user_name = await db.find_one(Users, Users.username == user.username)
@@ -110,6 +115,7 @@ async def signup(user):
         password=user.password,
         confirm_password=user.confirm_password,
         password_changed_at=datetime.now(),
+        disabled=False,
     )
     user = await db.save(user)
     return user.dict()
