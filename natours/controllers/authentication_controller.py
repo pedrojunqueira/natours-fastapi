@@ -88,7 +88,7 @@ async def get_current_user(
     return user
 
 async def get_current_active_user(current_user: Users = Depends(get_current_user)):
-    if current_user.disabled:
+    if not current_user.active:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
@@ -115,7 +115,7 @@ async def signup(user):
         password=user.password,
         confirm_password=user.confirm_password,
         password_changed_at=datetime.now(),
-        disabled=False,
+        active=True,
     )
     user = await db.save(user)
     return user.dict()

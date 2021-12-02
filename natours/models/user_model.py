@@ -10,7 +10,8 @@ class Users(Model):
     email: EmailStr
     name: Optional[str]
     lastname: Optional[str]
-    disabled: Optional[bool]
+    role: str = Field(default="user")
+    active: Optional[bool]
     photo: Optional[str]
     password: str
     confirm_password: Optional[str]

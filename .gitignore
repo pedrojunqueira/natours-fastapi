@@ -4,3 +4,7 @@ __pycache__
 populate_db*.py
 .coverage
 .vscode
+
+location_test.py
+new_tour.py
+new_users.py
