@@ -8,3 +8,4 @@ populate_db*.py
 location_test.py
 new_tour.py
 new_users.py
+new_review.py

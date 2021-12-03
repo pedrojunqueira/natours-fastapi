@@ -3,7 +3,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
-from natours.routes import heart, tour_routes, user_routes
+from natours.routes import heart, tour_routes, user_routes, review_routes
 
 limiter = Limiter(key_func=get_remote_address)
 
@@ -17,6 +17,9 @@ def create_application() -> FastAPI:
     )
     application.include_router(
         user_routes.router, prefix="/api/v1/users", tags=["users"]
+    )
+    application.include_router(
+        review_routes.router, prefix="/api/v1/reviews", tags=["reviews"]
     )
     application.include_router(heart.router)
 
