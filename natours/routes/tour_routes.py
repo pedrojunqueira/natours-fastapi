@@ -40,6 +40,7 @@ async def get_all_tours(
         "data": tours,
     }
 
+
 @router.get("/{Id:str}")
 async def get_tour(Id: ObjectId):
     tour = await tour_controller.get_tour(Id)
@@ -51,13 +52,17 @@ async def get_tour(Id: ObjectId):
             "data": tour,
         }
 
+
 ## secure all CUD routes
 
-admin_resource = authentication_controller.RoleChecker(["admin","lead-guide"])
+admin_resource = authentication_controller.RoleChecker(["admin", "lead-guide"])
+
 
 @router.post("/", dependencies=[Depends(admin_resource)])
-async def create_tour(tour: Tour,
-    current_user: User = Depends(authentication_controller.get_current_active_user)):
+async def create_tour(
+    tour: Tour,
+    current_user: User = Depends(authentication_controller.get_current_active_user),
+):
     tour = await tour_controller.post(tour)
     return {
         "status": "success",
@@ -66,9 +71,13 @@ async def create_tour(tour: Tour,
         },
     }
 
+
 @router.patch("/{Id:str}", dependencies=[Depends(admin_resource)])
-async def update_tour(Id: ObjectId, tour_patch: dict = Body(...),
-    current_user: User = Depends(authentication_controller.get_current_active_user)):
+async def update_tour(
+    Id: ObjectId,
+    tour_patch: dict = Body(...),
+    current_user: User = Depends(authentication_controller.get_current_active_user),
+):
     tour = await tour_controller.patch_tour(Id, tour_patch)
     if not tour:
         raise HTTPException(404, "could not find item")
@@ -80,8 +89,10 @@ async def update_tour(Id: ObjectId, tour_patch: dict = Body(...),
 
 
 @router.delete("/{Id:str}", dependencies=[Depends(admin_resource)])
-async def delete_tour(Id: ObjectId,
-    current_user: User = Depends(authentication_controller.get_current_active_user)):
+async def delete_tour(
+    Id: ObjectId,
+    current_user: User = Depends(authentication_controller.get_current_active_user),
+):
     tour = await tour_controller.delete_tour(Id)
     if not tour:
         raise HTTPException(404, "could not find item")
@@ -92,8 +103,10 @@ async def delete_tour(Id: ObjectId,
 
 
 @router.get("/{Id:str}/reviews", dependencies=[Depends(admin_resource)])
-async def create_tour_reviews(Id: str,
-    current_user: User = Depends(authentication_controller.get_current_active_user)):
+async def create_tour_reviews(
+    Id: str,
+    current_user: User = Depends(authentication_controller.get_current_active_user),
+):
     reviews = await review_controller.get_tour_reviews(Id)
     return {
         "status": "success",
@@ -102,11 +115,17 @@ async def create_tour_reviews(Id: str,
         },
     }
 
+
 @router.post("/{Id:str}/reviews")
-async def create_review(review: Review, Id: str,
-    current_user: User = Depends(authentication_controller.get_current_active_user)):
+async def create_review(
+    review: Review,
+    Id: str,
+    current_user: User = Depends(authentication_controller.get_current_active_user),
+):
     tour = await tour_controller.get_tour(Id)
-    review = await review_controller.post_review(review=review, user=current_user, tour=tour)
+    review = await review_controller.post_review(
+        review=review, user=current_user, tour=tour
+    )
     return {
         "status": "success",
         "data": {

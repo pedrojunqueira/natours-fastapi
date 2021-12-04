@@ -13,11 +13,13 @@ async def get_reviews():
     reviews = await db.find(Review)
     return reviews
 
+
 async def get_review(Id):
     review = await db.find_one(Review, Review.id == ObjectId(Id))
     if not review:
         raise HTTPException(404, "cannot find review by Id")
     return review
+
 
 async def post_review(review: Review, user: User = None, tour: Tour = None):
     if not user and not tour:
@@ -27,6 +29,7 @@ async def post_review(review: Review, user: User = None, tour: Tour = None):
     review = await db.save(review)
     return review
 
+
 async def delete_review(Id):
     review = await db.find_one(Review, Review.id == ObjectId(Id))
     if not review:
@@ -34,6 +37,7 @@ async def delete_review(Id):
     if review:
         await db.delete(review)
     return review
+
 
 async def get_tour_reviews(Id):
     reviews = await db.find(Review, Review.tour == ObjectId(Id))

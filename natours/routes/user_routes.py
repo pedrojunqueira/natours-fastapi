@@ -5,7 +5,11 @@ from fastapi import Depends, HTTPException, status, Body, Request, Response
 from fastapi.security import OAuth2PasswordRequestForm
 
 from natours.config import settings
-from natours.controllers import authentication_controller, user_controller, email_controller
+from natours.controllers import (
+    authentication_controller,
+    user_controller,
+    email_controller,
+)
 from natours.models.security_model import (
     EmailSchema,
     PasswordSchema,
@@ -30,7 +34,9 @@ async def sign_up(user: User):
 
 
 @router.post("/token", response_model=Token)
-async def login_for_access_token(response: Response,form_data: OAuth2PasswordRequestForm = Depends()):
+async def login_for_access_token(
+    response: Response, form_data: OAuth2PasswordRequestForm = Depends()
+):
     user = await authentication_controller.authenticate_user(
         form_data.username, form_data.password
     )
@@ -45,18 +51,23 @@ async def login_for_access_token(response: Response,form_data: OAuth2PasswordReq
         data={"sub": user.username, "scopes": form_data.scopes},
         expires_delta=access_token_expires,
     )
-    response.set_cookie(key="jwt", value=access_token, expires=settings.ACCESS_TOKEN_EXPIRE_MINUTES*60, httponly=True)
+    response.set_cookie(
+        key="jwt",
+        value=access_token,
+        expires=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        httponly=True,
+    )
     return {"access_token": access_token, "token_type": "bearer"}
 
 
 allow_cud_resource = authentication_controller.RoleChecker(["admin"])
 
+
 @router.get("/me")
 async def read_users_me(
-    current_user: User = Depends(
-        authentication_controller.get_current_active_user)
+    current_user: User = Depends(authentication_controller.get_current_active_user),
 ):
-    response =  user_controller.select_user_keys(current_user)
+    response = user_controller.select_user_keys(current_user)
     return response
 
 
@@ -83,7 +94,7 @@ async def reset_password(token: str, new_passwords: PasswordSchema):
     await authentication_controller.save_reset_password(user, new_passwords)
 
     await email_controller.send_password_reset_confirmation(user.email)
-    
+
     # log the user in TODO
 
     return {"status": "success", "message": "your password was successfull reset"}
@@ -92,40 +103,51 @@ async def reset_password(token: str, new_passwords: PasswordSchema):
 @router.patch("/updatemypassword")
 async def update_my_password(
     passwords: UpdatePasswordSchema,
-    current_user: User = Depends(
-        authentication_controller.get_current_active_user),
+    current_user: User = Depends(authentication_controller.get_current_active_user),
 ):
 
-    if not  authentication_controller.verify_password(passwords.current_password, current_user.password):
+    if not authentication_controller.verify_password(
+        passwords.current_password, current_user.password
+    ):
         raise HTTPException(404, f"current password is incorrect")
 
-    user = await authentication_controller.save_updated_password(current_user, passwords)
+    user = await authentication_controller.save_updated_password(
+        current_user, passwords
+    )
 
     await email_controller.send_password_reset_confirmation(user.email)
 
     # log the user in TODO
 
-    return {"status": "success", "message": f"password successfully updated for {user.email}"}
+    return {
+        "status": "success",
+        "message": f"password successfully updated for {user.email}",
+    }
 
 
 @router.patch("/updateme")
-async def update_me(current_user: User = Depends(
-        authentication_controller.get_current_active_user),
-    user_patch: dict = Body(...)):
+async def update_me(
+    current_user: User = Depends(authentication_controller.get_current_active_user),
+    user_patch: dict = Body(...),
+):
 
     user = await user_controller.patch_user(user_patch, current_user)
 
     return {"status": "success", "data updated for user": user}
 
 
-
 @router.delete("/deleteme")
-async def delete_me(current_user: User = Depends(
-        authentication_controller.get_current_active_user)):
+async def delete_me(
+    current_user: User = Depends(authentication_controller.get_current_active_user),
+):
 
     user = await user_controller.delete_me(current_user)
 
-    return {"status": "success", "message": f"user {user.username} successfully deleted"}
+    return {
+        "status": "success",
+        "message": f"user {user.username} successfully deleted",
+    }
+
 
 @router.post("/login")
 async def log_in():
@@ -136,27 +158,39 @@ async def log_in():
 
 admin_resource = authentication_controller.RoleChecker(["admin"])
 
+
 @router.get("/", dependencies=[Depends(admin_resource)])
-async def get_all_users(current_user: User = Depends(authentication_controller.get_current_active_user)):
+async def get_all_users(
+    current_user: User = Depends(authentication_controller.get_current_active_user),
+):
     users = await user_controller.get_users()
     return {"status": "success", "users": users}
 
 
 @router.get("/{id:str}", dependencies=[Depends(admin_resource)])
-async def get_user(Id: str, current_user: User = Depends(authentication_controller.get_current_active_user)):
+async def get_user(
+    Id: str,
+    current_user: User = Depends(authentication_controller.get_current_active_user),
+):
     user = await user_controller.get_user(Id)
     return {"status": "success", "user": user}
 
 
 @router.patch("/{id:str}", dependencies=[Depends(admin_resource)])
-async def update_user(Id: str, current_user: User = Depends(authentication_controller.get_current_active_user),
-user_patch: dict = Body(...)):
+async def update_user(
+    Id: str,
+    current_user: User = Depends(authentication_controller.get_current_active_user),
+    user_patch: dict = Body(...),
+):
     user_to_patch = await user_controller.get_user(Id)
     user = await user_controller.patch_user(user_patch, user_to_patch)
     return {"status": "success", "user updated": user}
 
 
 @router.delete("/{id:str}", dependencies=[Depends(admin_resource)])
-async def delete_user(Id: str, current_user: User = Depends(authentication_controller.get_current_active_user)):
+async def delete_user(
+    Id: str,
+    current_user: User = Depends(authentication_controller.get_current_active_user),
+):
     user = await user_controller.delete_user(Id)
     return {"status": "user", "user deleted": user}

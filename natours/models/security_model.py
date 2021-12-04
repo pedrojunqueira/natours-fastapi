@@ -12,6 +12,7 @@ class TokenData(BaseModel):
     username: Optional[str] = None
     scopes: List[str] = []
 
+
 class EmailSchema(BaseModel):
     email: EmailStr
 

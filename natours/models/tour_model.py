@@ -4,17 +4,20 @@ from typing import List, Optional
 from odmantic import Field, Model, EmbeddedModel, ObjectId
 from pydantic import BaseModel
 
+
 class StartLocation(BaseModel):
     description: str
     type: str
     coordinates: List[float]
     address: str
 
+
 class Location(EmbeddedModel):
     description: str
     type: str
     coordinates: List[float]
     day: int
+
 
 class Tour(Model):
     name: str
@@ -34,7 +37,6 @@ class Tour(Model):
     imageCover: str
     guides: Optional[List[ObjectId]]
     locations: Optional[List[Location]]
+
     class Config:
         collection = "tours"
-
-

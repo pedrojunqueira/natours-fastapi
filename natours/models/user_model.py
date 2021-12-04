@@ -25,5 +25,6 @@ class User(Model):
         if "password" in values and v != values["password"]:
             raise ValueError("passwords do not match")
         return v
+
     class Config:
         collection = "users"

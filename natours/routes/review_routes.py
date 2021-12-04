@@ -1,4 +1,3 @@
-
 import fastapi
 from fastapi import HTTPException, Depends
 from odmantic import ObjectId
@@ -21,8 +20,10 @@ async def get_all_reviews():
 
 
 @router.get("/{Id:str}")
-async def get_reviews(Id: ObjectId,
-    current_user: User = Depends(authentication_controller.get_current_active_user)):
+async def get_reviews(
+    Id: ObjectId,
+    current_user: User = Depends(authentication_controller.get_current_active_user),
+):
     reviews = await review_controller.get_review(Id)
     return {
         "status": "success",
@@ -30,11 +31,15 @@ async def get_reviews(Id: ObjectId,
         "data": reviews,
     }
 
+
 admin_resource = authentication_controller.RoleChecker(["admin"])
 
+
 @router.delete("/{Id:str}", dependencies=[Depends(admin_resource)])
-async def delete_review(Id: ObjectId,
-    current_user: User = Depends(authentication_controller.get_current_active_user)):
+async def delete_review(
+    Id: ObjectId,
+    current_user: User = Depends(authentication_controller.get_current_active_user),
+):
     review = await review_controller.delete_review(Id)
     if not review:
         raise HTTPException(404, "could not find item")

@@ -7,6 +7,7 @@ router = fastapi.APIRouter()
 
 limiter = Limiter(key_func=get_remote_address)
 
+
 @router.get("/")
 @limiter.limit("5/minute")
 async def heart_beat(request: Request):
