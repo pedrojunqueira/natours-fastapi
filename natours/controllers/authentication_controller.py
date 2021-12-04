@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import Optional, List
 import uuid
 import hashlib
 
@@ -18,9 +18,8 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/api/v1/users/token",
-    scopes={"me": "Read information about the current user.", "tours": "Read tours."},
+    scopes={"read": "read data about user", "write": "write data on users"},
 )
-
 
 def get_password_hash(password):
     return pwd_context.hash(password)
@@ -59,6 +58,7 @@ async def get_current_user(
         authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
     else:
         authenticate_value = f"Bearer"
+    
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -92,6 +92,17 @@ async def get_current_active_user(current_user: Users = Depends(get_current_user
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
+class RoleChecker:
+    def __init__(self, allowed_roles: List):
+        self.allowed_roles = allowed_roles
+
+    def __call__(self, current_user: Users = Depends(get_current_active_user)):
+        if current_user.role not in self.allowed_roles:
+            raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not enough permissions",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
 async def verify_non_existing_user(user):
     user_name = await db.find_one(Users, Users.username == user.username)

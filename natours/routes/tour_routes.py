@@ -1,8 +1,9 @@
 import fastapi
 from fastapi import Body, HTTPException, Request, Security
+from fastapi.param_functions import Depends
 from odmantic import ObjectId
 
-from natours.controllers import tour_controller
+from natours.controllers import tour_controller, user_controller
 from natours.controllers import authentication_controller
 from natours.models.tour_model import Tours
 from natours.models.user_model import Users
@@ -26,9 +27,6 @@ async def monthly_plan(year: int):
 @router.get("/")
 async def get_all_tours(
     request: Request,
-    current_user: Users = Security(
-        authentication_controller.get_current_user, scopes=["tours"]
-    ),
     page: int = 1,
     limit: int = 100,
 ):
@@ -41,18 +39,6 @@ async def get_all_tours(
         "data": tours,
     }
 
-
-@router.post("/")
-async def create_tour(tour: Tours):
-    tour = await tour_controller.post(tour)
-    return {
-        "status": "success",
-        "data": {
-            "tour": tour,
-        },
-    }
-
-
 @router.get("/{Id:str}")
 async def get_tour(Id: ObjectId):
     tour = await tour_controller.get_tour(Id)
@@ -64,9 +50,24 @@ async def get_tour(Id: ObjectId):
             "data": tour,
         }
 
+## secure all CUD routes
 
-@router.patch("/{Id:str}")
-async def update_tour(Id: ObjectId, tour_patch: dict = Body(...)):
+admin_resource = authentication_controller.RoleChecker(["admin","lead-guide"])
+
+@router.post("/", dependencies=[Depends(admin_resource)])
+async def create_tour(tour: Tours,
+    current_user: Users = Depends(authentication_controller.get_current_active_user)):
+    tour = await tour_controller.post(tour)
+    return {
+        "status": "success",
+        "data": {
+            "tour": tour,
+        },
+    }
+
+@router.patch("/{Id:str}", dependencies=[Depends(admin_resource)])
+async def update_tour(Id: ObjectId, tour_patch: dict = Body(...),
+    current_user: Users = Depends(authentication_controller.get_current_active_user)):
     tour = await tour_controller.patch_tour(Id, tour_patch)
     if not tour:
         raise HTTPException(404, "could not find item")
@@ -77,8 +78,9 @@ async def update_tour(Id: ObjectId, tour_patch: dict = Body(...)):
         }
 
 
-@router.delete("/{Id:str}")
-async def delete_tour(Id: ObjectId):
+@router.delete("/{Id:str}", dependencies=[Depends(admin_resource)])
+async def delete_tour(Id: ObjectId,
+    current_user: Users = Depends(authentication_controller.get_current_active_user)):
     tour = await tour_controller.delete_tour(Id)
     if not tour:
         raise HTTPException(404, "could not find item")

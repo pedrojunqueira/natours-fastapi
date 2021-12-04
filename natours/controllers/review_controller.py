@@ -13,13 +13,11 @@ async def get_reviews():
 
 
 async def post_review(review):
-    print(review)
     review = await db.save(review)
-    print(review)
     return review
 
 async def delete_review(Id):
-    tour = await db.find_one(Review, Review.id == ObjectId(Id))
-    if tour:
-        await db.delete(tour)
-    return tour
+    review = await db.find_one(Review, Review.id == ObjectId(Id))
+    if review:
+        await db.delete(review)
+    return review

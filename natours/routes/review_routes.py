@@ -1,10 +1,11 @@
+
 import fastapi
-from fastapi import HTTPException
+from fastapi import HTTPException, Depends
 from odmantic import ObjectId
 
-from natours.controllers import review_controller
+from natours.controllers import review_controller, authentication_controller
 from natours.models.review_model import Review
-
+from natours.models.user_model import Users
 
 router = fastapi.APIRouter()
 
@@ -18,8 +19,15 @@ async def get_all_reviews():
         "data": reviews,
     }
 
-@router.post("/")
-async def create_review(review: Review):
+
+## secure all CUD routes
+
+admin_resource = authentication_controller.RoleChecker(["admin"])
+
+
+@router.post("/", dependencies=[Depends(admin_resource)])
+async def create_review(review: Review,
+    current_user: Users = Depends(authentication_controller.get_current_active_user)):
     review = await review_controller.post_review(review)
     return {
         "status": "success",
@@ -29,8 +37,9 @@ async def create_review(review: Review):
     }
 
 
-@router.delete("/{Id:str}")
-async def delete_review(Id: ObjectId):
+@router.delete("/{Id:str}", dependencies=[Depends(admin_resource)])
+async def delete_review(Id: ObjectId,
+    current_user: Users = Depends(authentication_controller.get_current_active_user)):
     review = await review_controller.delete_review(Id)
     if not review:
         raise HTTPException(404, "could not find item")

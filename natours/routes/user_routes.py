@@ -1,12 +1,11 @@
 from datetime import timedelta
 
 import fastapi
-from fastapi import Depends, HTTPException, status, Security, Body, Request, Response
+from fastapi import Depends, HTTPException, status, Body, Request, Response
 from fastapi.security import OAuth2PasswordRequestForm
 
 from natours.config import settings
-from natours.controllers import authentication_controller, user_controller
-from natours.controllers import email_controller
+from natours.controllers import authentication_controller, user_controller, email_controller
 from natours.models.security_model import (
     EmailSchema,
     PasswordSchema,
@@ -50,18 +49,14 @@ async def login_for_access_token(response: Response,form_data: OAuth2PasswordReq
     return {"access_token": access_token, "token_type": "bearer"}
 
 
+allow_cud_resource = authentication_controller.RoleChecker(["admin"])
+
 @router.get("/me")
 async def read_users_me(
-    current_user: Users = Security(
-        authentication_controller.get_current_active_user, scopes=["me"]
-    )
+    current_user: Users = Depends(
+        authentication_controller.get_current_active_user)
 ):
-    response = {
-        "username": current_user.username,
-        "email": current_user.email,
-        "full name": f"{current_user.name if current_user.name else ''} {current_user.lastname if current_user.lastname else ''}",
-    }
-
+    response =  user_controller.select_user_keys(current_user)
     return response
 
 
@@ -97,9 +92,8 @@ async def reset_password(token: str, new_passwords: PasswordSchema):
 @router.patch("/updatemypassword")
 async def update_my_password(
     passwords: UpdatePasswordSchema,
-    current_user: Users = Security(
-        authentication_controller.get_current_active_user, scopes=["me"]
-    ),
+    current_user: Users = Depends(
+        authentication_controller.get_current_active_user),
 ):
 
     if not  authentication_controller.verify_password(passwords.current_password, current_user.password):
@@ -115,23 +109,19 @@ async def update_my_password(
 
 
 @router.patch("/updateme")
-async def update_me(current_user: Users = Security(
-        authentication_controller.get_current_active_user, scopes=["me"]
-    ),
+async def update_me(current_user: Users = Depends(
+        authentication_controller.get_current_active_user),
     user_patch: dict = Body(...)):
 
-    # only update fields that are related to authentication
-
-    user = await user_controller.patch_user(current_user, user_patch)
+    user = await user_controller.patch_user(user_patch, current_user)
 
     return {"status": "success", "data updated for user": user}
 
 
 
 @router.delete("/deleteme")
-async def delete_me(current_user: Users = Security(
-        authentication_controller.get_current_active_user, scopes=["me"]
-    )):
+async def delete_me(current_user: Users = Depends(
+        authentication_controller.get_current_active_user)):
 
     user = await user_controller.delete_me(current_user)
 
@@ -142,26 +132,31 @@ async def log_in():
     return {"status": "error", "message": "not yet implemented"}
 
 
-@router.get("/")
-async def get_all_users():
-    return {"status": "error", "message": "not yet implemented"}
+## secure all CUD routes
+
+admin_resource = authentication_controller.RoleChecker(["admin"])
+
+@router.get("/", dependencies=[Depends(admin_resource)])
+async def get_all_users(current_user: Users = Depends(authentication_controller.get_current_active_user)):
+    users = await user_controller.get_users()
+    return {"status": "success", "users": users}
 
 
-@router.post("/")
-async def create_user(tour: dict):
-    return {"status": "error", "message": "not yet implemented"}
+@router.get("/{id:str}", dependencies=[Depends(admin_resource)])
+async def get_user(Id: str, current_user: Users = Depends(authentication_controller.get_current_active_user)):
+    user = await user_controller.get_user(Id)
+    return {"status": "success", "user": user}
 
 
-@router.get("/{id:int}")
-async def get_user(id: int):
-    return {"status": "error", "message": "not yet implemented"}
+@router.patch("/{id:str}", dependencies=[Depends(admin_resource)])
+async def update_user(Id: str, current_user: Users = Depends(authentication_controller.get_current_active_user),
+user_patch: dict = Body(...)):
+    user_to_patch = await user_controller.get_user(Id)
+    user = await user_controller.patch_user(user_patch, user_to_patch)
+    return {"status": "success", "user updated": user}
 
 
-@router.patch("/{id:int}")
-async def update_user(id: int):
-    return {"status": "error", "message": "not yet implemented"}
-
-
-@router.delete("/{id:int}")
-async def delete_user(id: int):
-    return {"status": "error", "message": "not yet implemented"}
+@router.delete("/{id:str}", dependencies=[Depends(admin_resource)])
+async def delete_user(Id: str, current_user: Users = Depends(authentication_controller.get_current_active_user)):
+    user = await user_controller.delete_user(Id)
+    return {"status": "user", "user deleted": user}
