@@ -4,17 +4,17 @@ from fastapi.exceptions import HTTPException
 from odmantic import ObjectId
 
 from natours.models.database import engine as db
-from natours.models.tour_model import Tours
+from natours.models.tour_model import Tour
 
 
 def query_params(query):
     sort_by = (
-        query.get("sort").split(",") if query.get("sort") else Tours.createdAt.desc()
+        query.get("sort").split(",") if query.get("sort") else Tour.createdAt.desc()
     )
     sort_by = (
-        tuple([getattr(Tours, atr) for atr in sort_by])
+        tuple([getattr(Tour, atr) for atr in sort_by])
         if sort_by
-        else Tours.createdAt.desc()
+        else Tour.createdAt.desc()
     )
     limit = int(query.get("limit")) if query.get("limit") else None
     page = int(query.get("page")) if query.get("page") else None
@@ -24,7 +24,7 @@ def query_params(query):
 
 async def get_tours(query: dict):
     sort_by, skip, limit = query_params(query)
-    tours = await db.find(Tours, sort=sort_by, skip=skip, limit=limit)
+    tours = await db.find(Tour, sort=sort_by, skip=skip, limit=limit)
     return tours
 
 
@@ -34,7 +34,7 @@ async def post(tour):
 
 
 async def get_tour(Id):
-    tour = await db.find_one(Tours, Tours.id == ObjectId(Id))
+    tour = await db.find_one(Tour, Tour.id == ObjectId(Id))
     return tour
 
 
@@ -45,7 +45,7 @@ def validate_patch_body(patch, model):
 
 
 async def patch_tour(Id, new_tour):
-    tour = await db.find_one(Tours, Tours.id == ObjectId(Id))
+    tour = await db.find_one(Tour, Tour.id == ObjectId(Id))
     if tour:
         if validate_patch_body(new_tour, tour):
             for k, v in new_tour.items():
@@ -56,14 +56,14 @@ async def patch_tour(Id, new_tour):
 
 
 async def delete_tour(Id):
-    tour = await db.find_one(Tours, Tours.id == ObjectId(Id))
+    tour = await db.find_one(Tour, Tour.id == ObjectId(Id))
     if tour:
         await db.delete(tour)
     return tour
 
 
 async def tour_stats():
-    tours = db.get_collection(Tours)
+    tours = db.get_collection(Tour)
     stats = await tours.aggregate(
         [
             {
@@ -91,7 +91,7 @@ async def tour_stats():
 async def get_monthly_plan(year):
     if year > 9999:
         raise HTTPException(404, f"{year} is not a valid year range")
-    tours = db.get_collection(Tours)
+    tours = db.get_collection(Tour)
     plan = await tours.aggregate(
         [
             {

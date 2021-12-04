@@ -12,13 +12,13 @@ from natours.models.security_model import (
     Token,
     UpdatePasswordSchema,
 )
-from natours.models.user_model import Users
+from natours.models.user_model import User
 
 router = fastapi.APIRouter()
 
 
 @router.post("/signup")
-async def sign_up(user: Users):
+async def sign_up(user: User):
     verified_non_existing_user = (
         await authentication_controller.verify_non_existing_user(user)
     )
@@ -53,7 +53,7 @@ allow_cud_resource = authentication_controller.RoleChecker(["admin"])
 
 @router.get("/me")
 async def read_users_me(
-    current_user: Users = Depends(
+    current_user: User = Depends(
         authentication_controller.get_current_active_user)
 ):
     response =  user_controller.select_user_keys(current_user)
@@ -92,7 +92,7 @@ async def reset_password(token: str, new_passwords: PasswordSchema):
 @router.patch("/updatemypassword")
 async def update_my_password(
     passwords: UpdatePasswordSchema,
-    current_user: Users = Depends(
+    current_user: User = Depends(
         authentication_controller.get_current_active_user),
 ):
 
@@ -109,7 +109,7 @@ async def update_my_password(
 
 
 @router.patch("/updateme")
-async def update_me(current_user: Users = Depends(
+async def update_me(current_user: User = Depends(
         authentication_controller.get_current_active_user),
     user_patch: dict = Body(...)):
 
@@ -120,7 +120,7 @@ async def update_me(current_user: Users = Depends(
 
 
 @router.delete("/deleteme")
-async def delete_me(current_user: Users = Depends(
+async def delete_me(current_user: User = Depends(
         authentication_controller.get_current_active_user)):
 
     user = await user_controller.delete_me(current_user)
@@ -137,19 +137,19 @@ async def log_in():
 admin_resource = authentication_controller.RoleChecker(["admin"])
 
 @router.get("/", dependencies=[Depends(admin_resource)])
-async def get_all_users(current_user: Users = Depends(authentication_controller.get_current_active_user)):
+async def get_all_users(current_user: User = Depends(authentication_controller.get_current_active_user)):
     users = await user_controller.get_users()
     return {"status": "success", "users": users}
 
 
 @router.get("/{id:str}", dependencies=[Depends(admin_resource)])
-async def get_user(Id: str, current_user: Users = Depends(authentication_controller.get_current_active_user)):
+async def get_user(Id: str, current_user: User = Depends(authentication_controller.get_current_active_user)):
     user = await user_controller.get_user(Id)
     return {"status": "success", "user": user}
 
 
 @router.patch("/{id:str}", dependencies=[Depends(admin_resource)])
-async def update_user(Id: str, current_user: Users = Depends(authentication_controller.get_current_active_user),
+async def update_user(Id: str, current_user: User = Depends(authentication_controller.get_current_active_user),
 user_patch: dict = Body(...)):
     user_to_patch = await user_controller.get_user(Id)
     user = await user_controller.patch_user(user_patch, user_to_patch)
@@ -157,6 +157,6 @@ user_patch: dict = Body(...)):
 
 
 @router.delete("/{id:str}", dependencies=[Depends(admin_resource)])
-async def delete_user(Id: str, current_user: Users = Depends(authentication_controller.get_current_active_user)):
+async def delete_user(Id: str, current_user: User = Depends(authentication_controller.get_current_active_user)):
     user = await user_controller.delete_user(Id)
     return {"status": "user", "user deleted": user}

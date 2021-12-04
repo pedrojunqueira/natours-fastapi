@@ -12,7 +12,7 @@ from pydantic.error_wrappers import ValidationError
 from natours.config import settings
 from natours.models.database import engine as db
 from natours.models.security_model import TokenData
-from natours.models.user_model import Users
+from natours.models.user_model import User
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -30,7 +30,7 @@ def verify_password(plain_password, hashed_password):
 
 
 async def authenticate_user(username: str, password: str):
-    user = await db.find_one(Users, Users.username == username)
+    user = await db.find_one(User, User.username == username)
     if not user:
         return False
     if not verify_password(password, user.password):
@@ -75,7 +75,7 @@ async def get_current_user(
         token_data = TokenData(scopes=token_scopes, username=username)
     except (JWTError, ValidationError):
         raise credentials_exception
-    user = await db.find_one(Users, Users.username == token_data.username)
+    user = await db.find_one(User, User.username == token_data.username)
     if user is None:
         raise credentials_exception
     for scope in security_scopes.scopes:
@@ -87,7 +87,7 @@ async def get_current_user(
             )
     return user
 
-async def get_current_active_user(current_user: Users = Depends(get_current_user)):
+async def get_current_active_user(current_user: User = Depends(get_current_user)):
     if not current_user.active:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
@@ -96,7 +96,7 @@ class RoleChecker:
     def __init__(self, allowed_roles: List):
         self.allowed_roles = allowed_roles
 
-    def __call__(self, current_user: Users = Depends(get_current_active_user)):
+    def __call__(self, current_user: User = Depends(get_current_active_user)):
         if current_user.role not in self.allowed_roles:
             raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -105,12 +105,12 @@ class RoleChecker:
         )
 
 async def verify_non_existing_user(user):
-    user_name = await db.find_one(Users, Users.username == user.username)
+    user_name = await db.find_one(User, User.username == user.username)
     if user_name:
         raise HTTPException(
             404, f"{user_name.username} already exist chose another one"
         )
-    user_email = await db.find_one(Users, Users.email == user.email)
+    user_email = await db.find_one(User, User.email == user.email)
     if user_email:
         raise HTTPException(404, f"{user_email.email} already exist chose another one")
     return user
@@ -142,7 +142,7 @@ def hash_reset_token(token):
 
 
 async def check_existing_email(address):
-    user = await db.find_one(Users, Users.email == address)
+    user = await db.find_one(User, User.email == address)
     return user
 
 
@@ -164,9 +164,9 @@ async def save_reset_password_token_to_db(address):
 async def get_token_user(token):
     hashed_token = hash_reset_token(token)
     user = await db.find_one(
-        Users,
-        (Users.password_reset_token == hashed_token)
-        and (datetime.now() < Users.password_reset_expire),
+        User,
+        (User.password_reset_token == hashed_token)
+        and (datetime.now() < User.password_reset_expire),
     )
     if not user:
         raise HTTPException(404, f"token expired or not valid")

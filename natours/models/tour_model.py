@@ -16,7 +16,7 @@ class Location(EmbeddedModel):
     coordinates: List[float]
     day: int
 
-class Tours(Model):
+class Tour(Model):
     name: str
     duration: int
     maxGroupSize: int
@@ -34,5 +34,7 @@ class Tours(Model):
     imageCover: str
     guides: Optional[List[ObjectId]]
     locations: Optional[List[Location]]
+    class Config:
+        collection = "tours"
 
 

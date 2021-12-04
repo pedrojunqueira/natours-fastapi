@@ -3,10 +3,11 @@ from fastapi import Body, HTTPException, Request, Security
 from fastapi.param_functions import Depends
 from odmantic import ObjectId
 
-from natours.controllers import tour_controller, user_controller
+from natours.controllers import tour_controller, user_controller, review_controller
 from natours.controllers import authentication_controller
-from natours.models.tour_model import Tours
-from natours.models.user_model import Users
+from natours.models.tour_model import Tour
+from natours.models.user_model import User
+from natours.models.review_model import Review
 
 
 router = fastapi.APIRouter()
@@ -55,8 +56,8 @@ async def get_tour(Id: ObjectId):
 admin_resource = authentication_controller.RoleChecker(["admin","lead-guide"])
 
 @router.post("/", dependencies=[Depends(admin_resource)])
-async def create_tour(tour: Tours,
-    current_user: Users = Depends(authentication_controller.get_current_active_user)):
+async def create_tour(tour: Tour,
+    current_user: User = Depends(authentication_controller.get_current_active_user)):
     tour = await tour_controller.post(tour)
     return {
         "status": "success",
@@ -67,7 +68,7 @@ async def create_tour(tour: Tours,
 
 @router.patch("/{Id:str}", dependencies=[Depends(admin_resource)])
 async def update_tour(Id: ObjectId, tour_patch: dict = Body(...),
-    current_user: Users = Depends(authentication_controller.get_current_active_user)):
+    current_user: User = Depends(authentication_controller.get_current_active_user)):
     tour = await tour_controller.patch_tour(Id, tour_patch)
     if not tour:
         raise HTTPException(404, "could not find item")
@@ -80,11 +81,35 @@ async def update_tour(Id: ObjectId, tour_patch: dict = Body(...),
 
 @router.delete("/{Id:str}", dependencies=[Depends(admin_resource)])
 async def delete_tour(Id: ObjectId,
-    current_user: Users = Depends(authentication_controller.get_current_active_user)):
+    current_user: User = Depends(authentication_controller.get_current_active_user)):
     tour = await tour_controller.delete_tour(Id)
     if not tour:
         raise HTTPException(404, "could not find item")
     return {
         "status": "success",
         "tour deleted": tour,
+    }
+
+
+@router.get("/{Id:str}/reviews", dependencies=[Depends(admin_resource)])
+async def create_tour_reviews(Id: str,
+    current_user: User = Depends(authentication_controller.get_current_active_user)):
+    reviews = await review_controller.get_tour_reviews(Id)
+    return {
+        "status": "success",
+        "data": {
+            "reviews": reviews,
+        },
+    }
+
+@router.post("/{Id:str}/reviews")
+async def create_review(review: Review, Id: str,
+    current_user: User = Depends(authentication_controller.get_current_active_user)):
+    tour = await tour_controller.get_tour(Id)
+    review = await review_controller.post_review(review=review, user=current_user, tour=tour)
+    return {
+        "status": "success",
+        "data": {
+            "review added": review,
+        },
     }

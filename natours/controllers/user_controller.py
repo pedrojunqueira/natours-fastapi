@@ -4,7 +4,7 @@ from fastapi.exceptions import HTTPException
 from odmantic import ObjectId
 
 from natours.models.database import engine as db
-from natours.models.user_model import Users
+from natours.models.user_model import User
 
 authentication_fields = ["username",
                          "email",
@@ -22,7 +22,7 @@ def validate_patch_body(patch, model):
         raise HTTPException(401, "cannot update authentication field")
     return all(k in model_keys for k in keys)
 
-async def patch_user(user_patch:dict, current_user: Users):
+async def patch_user(user_patch:dict, current_user: User):
     user = current_user
     if validate_patch_body(user_patch, user):
         for k, v in user_patch.items():
@@ -40,18 +40,18 @@ async def delete_me(user):
     return user
 
 async def get_users():
-    users = await db.find(Users)
+    users = await db.find(User)
     return [select_user_keys(user) for user in users]
 
 async def get_user(Id:str):
-    user = await db.find_one(Users, Users.id == ObjectId(Id))
+    user = await db.find_one(User, User.id == ObjectId(Id))
     if not user:
         raise HTTPException(404, "cannot find user by Id")
     return user
 
 
 async def delete_user(Id):
-    user = await db.find_one(Users, Users.id == ObjectId(Id))
+    user = await db.find_one(User, User.id == ObjectId(Id))
     if not user:
         raise HTTPException(404, "cannot find user by Id")
     if user:
@@ -59,7 +59,7 @@ async def delete_user(Id):
     return user
 
 
-def select_user_keys(user: Users, keys:List = ["name", "lastname", "email"]):
+def select_user_keys(user: User, keys:List = ["name", "lastname", "email"]):
     return_user = user
     response  = {
             "username": return_user.username,

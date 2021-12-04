@@ -5,7 +5,7 @@ from odmantic import Field, Model
 from pydantic import validator, EmailStr
 
 
-class Users(Model):
+class User(Model):
     username: str
     email: EmailStr
     name: Optional[str]
@@ -25,3 +25,5 @@ class Users(Model):
         if "password" in values and v != values["password"]:
             raise ValueError("passwords do not match")
         return v
+    class Config:
+        collection = "users"
