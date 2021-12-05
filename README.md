@@ -10,6 +10,10 @@
 
 `python -m pytest tests/`
 
+#### time tests
+
+python -m pytest tests -v --durations=0
+
 #### coverage
 
 % coverage per file

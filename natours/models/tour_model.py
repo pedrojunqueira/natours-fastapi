@@ -11,13 +11,11 @@ class StartLocation(BaseModel):
     coordinates: List[float]
     address: str
 
-
 class Location(EmbeddedModel):
     description: str
     type: str
     coordinates: List[float]
     day: int
-
 
 class Tour(Model):
     name: str
@@ -37,6 +35,6 @@ class Tour(Model):
     imageCover: str
     guides: Optional[List[ObjectId]]
     locations: Optional[List[Location]]
-
+    
     class Config:
         collection = "tours"

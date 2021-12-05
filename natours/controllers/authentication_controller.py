@@ -124,7 +124,7 @@ async def signup(user):
     hashed_password = get_password_hash(user.password)
     user.password = hashed_password
     user.confirm_password = hashed_password
-    user = Users(
+    user = User(
         username=user.username,
         email=user.email,
         password=user.password,

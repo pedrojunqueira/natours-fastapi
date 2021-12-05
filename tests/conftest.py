@@ -3,10 +3,17 @@ import os
 from enum import Enum
 from unittest.mock import Mock
 from uuid import uuid4
+from unittest.mock import patch
+from urllib.parse import urlencode
+
 
 import pytest
 from motor.motor_asyncio import AsyncIOMotorClient
 from odmantic.engine import AIOEngine
+from async_asgi_testclient import TestClient
+
+from natours.models.user_model import User
+
 
 try:
     from unittest.mock import AsyncMock
@@ -43,13 +50,13 @@ def motor_client(event_loop):
     client.close()
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def database_name():
     return f"odmantic-test-{uuid4()}"
 
 
 @pytest.mark.asyncio
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 async def engine(motor_client, database_name):
     sess = AIOEngine(motor_client, database_name)
     yield sess
@@ -57,12 +64,12 @@ async def engine(motor_client, database_name):
         await motor_client.drop_database(database_name)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def motor_database(database_name, motor_client):
     return motor_client[database_name]
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def mock_collection(engine: AIOEngine, monkeypatch):
     def f():
         collection = Mock()
@@ -72,3 +79,34 @@ def mock_collection(engine: AIOEngine, monkeypatch):
         return collection
 
     return f
+
+@pytest.fixture(scope="session")
+async def test_client(engine: AIOEngine) -> TestClient:
+    with patch("natours.models.database.engine", engine):
+        from natours.app import app
+
+        async with TestClient(app) as client:
+            yield client
+
+@pytest.fixture(scope="session")
+async def admin_token_header(test_client: TestClient, engine: AIOEngine):
+    body = {
+            "username":"admin",
+            "password":"secret",
+            "confirm_password":"secret",
+            "email": "admin@email.com"
+            }
+    response = await test_client.post("/api/v1/users/signup", json=body)
+    admin = await engine.find_one(User, User.username == "admin")
+    admin.role = "admin"
+    user = await engine.save(admin)
+    param = {"username":"admin", "password":"secret"}
+    headers = {
+    'Content-Type': 'application/x-www-form-urlencoded'
+    }
+    response =  await test_client.post("/api/v1/users/token", data=urlencode(param), headers=headers)
+    token = response.json()["access_token"]
+    h = {
+     'Authorization': f'Bearer {token}'
+    }
+    return h

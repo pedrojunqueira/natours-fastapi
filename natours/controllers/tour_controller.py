@@ -30,7 +30,7 @@ async def get_tours(query: dict):
 
 async def post(tour):
     tour = await db.save(tour)
-    return tour.dict()
+    return tour
 
 
 async def get_tour(Id):

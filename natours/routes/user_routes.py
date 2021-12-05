@@ -51,12 +51,12 @@ async def login_for_access_token(
         data={"sub": user.username, "scopes": form_data.scopes},
         expires_delta=access_token_expires,
     )
-    response.set_cookie(
-        key="jwt",
-        value=access_token,
-        expires=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        httponly=True,
-    )
+    # response.set_cookie(
+    #     key="jwt",
+    #     value=access_token,
+    #     expires=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+    #     httponly=True,
+    # )
     return {"access_token": access_token, "token_type": "bearer"}
 
 
