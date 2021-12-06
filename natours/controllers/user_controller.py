@@ -64,11 +64,7 @@ async def delete_user(Id):
     return user
 
 
-def select_user_keys(user: User, keys: List = ["name", "lastname", "email"]):
+def select_user_keys(user: User, keys: List = ["name", "lastname", "email", "createdAt"]):
     return_user = user
-    response = {
-        "username": return_user.username,
-        "email": return_user.email,
-        "full name": f"{return_user.name if return_user.name else ''} {return_user.lastname if return_user.lastname else ''}",
-    }
+    response = {k:v for k, v in return_user.dict().items() if k in keys}
     return response

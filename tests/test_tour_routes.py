@@ -27,29 +27,6 @@ async def test_heart_beat(test_client: TestClient):
     assert response.status_code == 200
     assert response.json() == {"I ❤️ FastAPI": "🙋🏽‍♂️"}
 
-async def test_sign_up(test_client: TestClient):
-    body = {
-            "username":"test",
-            "password":"1234",
-            "confirm_password":"1234",
-            "email": "test@email.com"
-            }
-    response = await test_client.post("/api/v1/users/signup", json=body)
-    response.json()["status"] == "success"
-    response.status_code == 200
-
-async def test_get_token(test_client: TestClient):
-    param = {"username":"test", "password":"1234"}
-
-    headers = {
-    'Content-Type': 'application/x-www-form-urlencoded'
-    }
-    response =  await test_client.post("/api/v1/users/token", data=urlencode(param), headers=headers)
-    assert response.status_code == 200
-
-async def test_get_me(test_client: TestClient, admin_token_header: dict):
-    response = await test_client.get("/api/v1/users/me", headers=admin_token_header)
-    assert response.status_code == 200
  
 
 async def test_post_tours(test_client: TestClient, engine: AIOEngine, admin_token_header: dict):

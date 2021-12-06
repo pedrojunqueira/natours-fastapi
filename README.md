@@ -12,7 +12,7 @@
 
 #### time tests
 
-python -m pytest tests -v --durations=0
+`python -m pytest tests -v --durations=0`
 
 #### coverage
 
