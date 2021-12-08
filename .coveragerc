@@ -1,6 +1,6 @@
 [run]
 branch = true
-omit = */tests/*,  */natours/populate_db.py
+omit = */tests/*,  */natours/populate_db.py, */natours/populate_dev_db.py 
 source = .
 
 [report]

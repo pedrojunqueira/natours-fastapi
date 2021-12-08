@@ -69,7 +69,7 @@ async def test_reset_password(test_client: TestClient):
         assert response.status_code == 200
         assert len(outbox) == 1
         assert outbox[0]['To'] == "test@email.com"
-        string = (outbox[0].get_payload()[1]).as_string()
+        string = (outbox[0].get_payload()[0]).as_string()
         message = "".join(string.split()[-3:])
         token = decoder(message).split()[-2].split("/")[-1]
         payload =  {
