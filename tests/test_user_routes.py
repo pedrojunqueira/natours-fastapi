@@ -1,8 +1,5 @@
-import json
-import os
-from pathlib import Path
+from datetime import datetime
 from urllib.parse import urlencode
-from dateutil.parser import parse
 
 import pytest
 from async_asgi_testclient import TestClient
@@ -36,7 +33,6 @@ async def test_get_token(test_client: TestClient):
     assert response.status_code == 200
 
 
-
 async def test_get_me(test_client: TestClient, admin_token_header: dict):
     response = await test_client.get("/api/v1/users/me", headers=admin_token_header)
     assert response.status_code == 200
@@ -44,7 +40,22 @@ async def test_get_me(test_client: TestClient, admin_token_header: dict):
 
 # test forgot password
 
+async def test_forgot_password(test_client: TestClient, engine: AIOEngine):
+    payload = {
+        "email": "test@email.com"
+    }
+    response = await test_client.post("/api/v1/users/forgotpassword", json=payload)
+    response.json()["status"] == "success"
+    assert response.status_code == 200
+    user = await engine.find_one(User, User.email == "test@email.com")
+    assert user.password_reset_token is not None
+    assert round((user.password_reset_expire - datetime.now()).seconds/60) == 20
+    
 # test reset password
+
+
+async def test_reset_password(test_client: TestClient, engine: AIOEngine):
+    pass
 
 # test update my password
 
@@ -53,14 +64,11 @@ async def test_get_me(test_client: TestClient, admin_token_header: dict):
 # test deleteme
 
 
-# test get all users
 
 async def test_get_users(test_client: TestClient, engine: AIOEngine, admin_token_header: dict):
     response = await test_client.get("/api/v1/users/", headers=admin_token_header)
     assert response.status_code == 200
     assert len(response.json()) == 2
-
-# test get user by id
 
 
 async def test_get_user(test_client: TestClient, engine: AIOEngine, admin_token_header: dict):
