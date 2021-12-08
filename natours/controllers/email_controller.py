@@ -15,6 +15,8 @@ conf = ConnectionConfig(
 )
 
 
+email_client = FastMail(conf)
+
 def render_email_message(reset_url):
 
     html = f"""
@@ -31,8 +33,8 @@ async def send_password_reset_email(email, html):
         body=html,
         subtype="html",
     )
-    client = FastMail(conf)
-    await client.send_message(message)
+    email_client = FastMail(conf)
+    await email_client.send_message(message)
 
 
 async def send_password_reset_confirmation(email):

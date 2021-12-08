@@ -1,5 +1,6 @@
 from datetime import datetime
 from urllib.parse import urlencode
+import base64
 
 import pytest
 from async_asgi_testclient import TestClient
@@ -7,6 +8,7 @@ from odmantic.engine import AIOEngine
 
 from natours.models.tour_model import Tour
 from natours.models.user_model import User
+from natours.controllers.email_controller import email_client
 
 pytestmark = pytest.mark.asyncio
 
@@ -50,13 +52,34 @@ async def test_forgot_password(test_client: TestClient, engine: AIOEngine):
     user = await engine.find_one(User, User.email == "test@email.com")
     assert user.password_reset_token is not None
     assert round((user.password_reset_expire - datetime.now()).seconds/60) == 20
-    
-# test reset password
 
 
-async def test_reset_password(test_client: TestClient, engine: AIOEngine):
-    pass
+def decoder(string):
+    decoded = base64.b64decode(string)
+    return decoded.decode()
 
+
+async def test_reset_password(test_client: TestClient):
+    email_client.config.SUPPRESS_SEND = 1
+    with email_client.record_messages() as outbox:
+        payload = {
+        "email": "test@email.com"
+        }
+        response = await test_client.post("/api/v1/users/forgotpassword", json=payload)
+        assert response.status_code == 200
+        assert len(outbox) == 1
+        assert outbox[0]['To'] == "test@email.com"
+        string = (outbox[0].get_payload()[1]).as_string()
+        message = "".join(string.split()[-3:])
+        token = decoder(message).split()[-2].split("/")[-1]
+        payload =  {
+            "password": "newpass",
+            "confirm_password": "newpass"
+            }       
+        response = await test_client.patch(f"/api/v1/users/resetpassword/{token}", json=payload)
+        assert response.status_code == 200
+        
+        
 # test update my password
 
 # test update me
