@@ -24,6 +24,25 @@ async def test_sign_up(test_client: TestClient):
     response.json()["status"] == "success"
     response.status_code == 200
 
+@pytest.fixture()
+async def test_token_header(test_client: TestClient, engine: AIOEngine):
+    body = {
+            "username":"test2",
+            "password":"secret",
+            "confirm_password":"secret",
+            "email": "test2@email.com"
+            }
+    response = await test_client.post("/api/v1/users/signup", json=body)
+    param = {"username":"test2", "password":"secret"}
+    headers = {
+    'Content-Type': 'application/x-www-form-urlencoded'
+    }
+    response =  await test_client.post("/api/v1/users/token", data=urlencode(param), headers=headers)
+    token = response.json()["access_token"]
+    h = {
+     'Authorization': f'Bearer {token}'
+    }
+    return h
 
 async def test_get_token(test_client: TestClient):
     param = {"username":"test", "password":"1234"}
@@ -42,6 +61,7 @@ async def test_get_me(test_client: TestClient, admin_token_header: dict):
 
 # test forgot password
 
+@pytest.mark.skip
 async def test_forgot_password(test_client: TestClient, engine: AIOEngine):
     payload = {
         "email": "test@email.com"
@@ -58,8 +78,8 @@ def decoder(string):
     decoded = base64.b64decode(string)
     return decoded.decode()
 
-
-async def test_reset_password(test_client: TestClient):
+@pytest.mark.skip
+async def test_reset_password_with_token(test_client: TestClient):
     email_client.config.SUPPRESS_SEND = 1
     with email_client.record_messages() as outbox:
         payload = {
@@ -82,11 +102,20 @@ async def test_reset_password(test_client: TestClient):
         
 # test update my password
 
+async def test_update_my_password(test_client: TestClient, test_token_header: dict):
+    body =    {
+        "current_password": "secret",
+        "password": "newsecret",
+        "confirm_password": "newsecret"
+        }       
+    response = await test_client.patch("/api/v1/users/updatemypassword", headers=test_token_header, json=body)
+    assert response.status_code == 200
+    assert response.json()["status"] == "success"
+    assert response.json()["message"] == 'password successfully updated for test2@email.com'
+
 # test update me
 
 # test deleteme
-
-
 
 async def test_get_users(test_client: TestClient, engine: AIOEngine, admin_token_header: dict):
     response = await test_client.get("/api/v1/users/", headers=admin_token_header)
