@@ -59,9 +59,7 @@ async def test_get_me(test_client: TestClient, admin_token_header: dict):
     assert response.status_code == 200
 
 
-# test forgot password
-
-@pytest.mark.skip
+#@pytest.mark.skip
 async def test_forgot_password(test_client: TestClient, engine: AIOEngine):
     payload = {
         "email": "test@email.com"
@@ -78,7 +76,7 @@ def decoder(string):
     decoded = base64.b64decode(string)
     return decoded.decode()
 
-@pytest.mark.skip
+#@pytest.mark.skip
 async def test_reset_password_with_token(test_client: TestClient):
     email_client.config.SUPPRESS_SEND = 1
     with email_client.record_messages() as outbox:
@@ -99,8 +97,20 @@ async def test_reset_password_with_token(test_client: TestClient):
         response = await test_client.patch(f"/api/v1/users/resetpassword/{token}", json=payload)
         assert response.status_code == 200
         
-        
-# test update my password
+async def test_update_me(test_client: TestClient, test_token_header: dict, engine:AIOEngine):
+    user = await engine.find_one(User, User.email == "test2@email.com")
+    assert user.name == None
+    assert user.lastname == None
+    body =    {
+        "name": "test_name",
+        "lastname": "test_lastname",
+        }       
+    response = await test_client.patch("/api/v1/users/updateme", headers=test_token_header, json=body)
+    assert response.status_code == 200
+    assert response.json()["status"] == "success"
+    user = await engine.find_one(User, User.email == "test2@email.com")
+    assert user.name == body["name"]
+    assert user.lastname == body["lastname"]
 
 async def test_update_my_password(test_client: TestClient, test_token_header: dict):
     body =    {
@@ -113,9 +123,22 @@ async def test_update_my_password(test_client: TestClient, test_token_header: di
     assert response.json()["status"] == "success"
     assert response.json()["message"] == 'password successfully updated for test2@email.com'
 
-# test update me
+async def test_delete_me(test_client: TestClient, engine:AIOEngine):
+    param = {"username":"test2", "password":"newsecret"}
+    headers = {
+    'Content-Type': 'application/x-www-form-urlencoded'
+    }
+    response =  await test_client.post("/api/v1/users/token", data=urlencode(param), headers=headers)
+    token = response.json()["access_token"]
+    h = {
+     'Authorization': f'Bearer {token}'
+    }
+    response = await test_client.delete("/api/v1/users/deleteme", headers=h)
+    assert response.status_code == 200
+    assert response.json()["status"] == "success"
+    user = await engine.find_one(User, User.email == "test2@email.com")
+    assert user.active == False
 
-# test deleteme
 
 async def test_get_users(test_client: TestClient, engine: AIOEngine, admin_token_header: dict):
     response = await test_client.get("/api/v1/users/", headers=admin_token_header)
@@ -133,50 +156,31 @@ async def test_get_user(test_client: TestClient, engine: AIOEngine, admin_token_
     assert data["username"] == username
     
 
-# test patch user
+async def test_patch_user(test_client: TestClient, engine: AIOEngine, admin_token_header: dict):
+    user = await engine.find_one(User, User.email=="test@email.com")
+    user_id = user.id
+    user_name = user.name
+    response = await test_client.patch(
+        f"/api/v1/users/{user_id}", json=dict(name="new name") , headers=admin_token_header
+    )
+    assert response.status_code == 200
+    user = await engine.find_one(User, User.id== user_id)
+    assert user.name == "new name"
+    assert user.name != user_name
+    response = await test_client.patch(
+        f"/api/v1/users/{user_id}", json=dict(name=user_name), headers=admin_token_header
+    )
+    assert response.status_code == 200
+    user = await engine.find_one(User, User.id== user_id)
+    assert user.name == user_name
 
 
-# async def test_patch_tour(test_client: TestClient, engine: AIOEngine, admin_token_header: dict):
-#     tour = await engine.find(Tour)
-#     tour_id = tour[0].dict()["id"]
-#     tour_name = tour[0].dict()["name"]
-#     response = await test_client.patch(
-#         f"/api/v1/tours/{tour_id}", json=dict(name="this is the tour new name") , headers=admin_token_header
-#     )
-#     assert response.status_code == 200
-#     tour = await engine.find(Tour, Tour.id == tour_id)
-#     assert tour[0].dict()["name"] == "this is the tour new name"
-#     assert tour[0].dict()["name"] != tour_name
-#     response = await test_client.patch(
-#         f"/api/v1/tours/{tour_id}", json=dict(name=tour_name), headers=admin_token_header
-#     )
-#     assert response.status_code == 200
-#     tour = await engine.find(Tour, Tour.id == tour_id)
-#     assert tour[0].dict()["name"] == tour_name
-
-
-# test delete user by id
-
-# async def test_delete_tour(test_client: TestClient, engine: AIOEngine, admin_token_header: dict):
-#     tour = await engine.find(Tour)
-#     tour_id = tour[0].dict()["id"]
-#     response = await test_client.delete(f"/api/v1/tours/{tour_id}", headers=admin_token_header)
-#     assert response.status_code == 200
-#     assert await engine.find(Tour, Tour.id == tour_id) == []
-#     tours = await engine.find(Tour)
-#     assert len(tours) == 8
-
- 
-
-# async def test_post_tours(test_client: TestClient, engine: AIOEngine, admin_token_header: dict):
-#     p = Path(os.path.dirname(__file__)).resolve().parent
-#     with open(p / "natours/dev-data/data/tours.json", "r") as fp:
-#         data = json.load(fp)
-#     for tour in data:
-#         response = await test_client.post("/api/v1/tours/", json=prep_tour(tour), headers=admin_token_header)
-#         assert response.status_code == 200
-
-#     fetched_from_db = await engine.find(Tour)
-#     assert len(fetched_from_db) == 9
+async def test_delete_user(test_client: TestClient, engine: AIOEngine, admin_token_header: dict):
+    user = await engine.find_one(User, User.email=="test@email.com")
+    user_id = user.id
+    response = await test_client.delete(f"/api/v1/users/{user_id}", headers=admin_token_header)
+    assert response.status_code == 200
+    soft_deleted = await engine.find_one(User, User.email=="test@email.com")
+    assert soft_deleted.active == False
 
 

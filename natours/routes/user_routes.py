@@ -171,7 +171,7 @@ async def get_user(
     return {"status": "success", "user": user}
 
 
-@router.patch("/{id:str}", dependencies=[Depends(admin_resource)])
+@router.patch("/{Id:str}", dependencies=[Depends(admin_resource)])
 async def update_user(
     Id: str,
     current_user: User = Depends(authentication_controller.get_current_active_user),
@@ -182,7 +182,7 @@ async def update_user(
     return {"status": "success", "user updated": user}
 
 
-@router.delete("/{id:str}", dependencies=[Depends(admin_resource)])
+@router.delete("/{Id:str}", dependencies=[Depends(admin_resource)])
 async def delete_user(
     Id: str,
     current_user: User = Depends(authentication_controller.get_current_active_user),

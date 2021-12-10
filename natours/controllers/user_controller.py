@@ -36,7 +36,7 @@ async def patch_user(user_patch: dict, current_user: User):
 
 
 async def delete_me(user):
-    user.disabled = True
+    user.active = False
 
     await db.save(user)
 
@@ -60,7 +60,8 @@ async def delete_user(Id):
     if not user:
         raise HTTPException(404, "cannot find user by Id")
     if user:
-        await db.delete(user)
+        user.active = False
+        await db.save(user)
     return user
 
 
