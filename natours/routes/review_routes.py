@@ -3,7 +3,6 @@ from fastapi import HTTPException, Depends
 from odmantic import ObjectId
 
 from natours.controllers import review_controller, authentication_controller
-from natours.models.review_model import Review
 from natours.models.user_model import User
 
 router = fastapi.APIRouter()

@@ -6,7 +6,6 @@ import pytest
 from async_asgi_testclient import TestClient
 from odmantic.engine import AIOEngine
 
-from natours.models.tour_model import Tour
 from natours.models.user_model import User
 from natours.controllers.email_controller import email_client
 
@@ -25,7 +24,7 @@ async def test_sign_up(test_client: TestClient):
     response.status_code == 200
 
 @pytest.fixture()
-async def test_token_header(test_client: TestClient, engine: AIOEngine):
+async def test_token_header(test_client: TestClient):
     body = {
             "username":"test2",
             "password":"secret",

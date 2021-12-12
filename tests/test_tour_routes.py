@@ -93,7 +93,6 @@ async def test_monthly_plan(test_client: TestClient, year: int, status_code: int
     response = await test_client.get(f"/api/v1/tours/monthly-plan/{year}")
     assert response.status_code == status_code
     data = response.json()
-    print(data)
 
 
 async def test_delete_tour(test_client: TestClient, engine: AIOEngine, admin_token_header: dict):
