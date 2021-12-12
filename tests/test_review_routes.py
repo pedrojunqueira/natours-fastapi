@@ -87,22 +87,25 @@ async def test_post_tour_review(test_client: TestClient, engine: AIOEngine, admi
             "review": "This is my test review about the tour",
             "rating": 4
             }
-    print(tour_id)
-    response = await test_client.post(f"/api/v1/tours/{tour_id}/reviews", headers=admin_token_header , data=review)
-    print(response.json())
+    response = await test_client.post(f"/api/v1/tours/{tour_id}/reviews", headers=admin_token_header , json=review)
+    assert response.status_code == 200
+    assert response.json()["status"] == "success"
+    assert response.json()["data"]["review added"]["review"] == review["review"]
 
 # test get tour review (nested)
 
 async def test_get_tour_review(test_client: TestClient, engine: AIOEngine, admin_token_header: dict):
-    pass
-
+    tours = await engine.find(Tour)
+    tour_id = tours[0].id
+    response = await test_client.get(f"/api/v1/tours/{tour_id}/reviews", headers=admin_token_header)
+    assert response.status_code == 200
+    assert response.json()["status"] == "success"
 
 # test get reviews
 
 async def test_get_reviews(test_client: TestClient):
     response = await test_client.get("/api/v1/reviews/")
     assert response.status_code == 200
-    print(response.json())
 
 
 # test get review by id
