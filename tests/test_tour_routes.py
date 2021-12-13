@@ -1,5 +1,4 @@
 import json
-import os
 from pathlib import Path
 from urllib.parse import urlencode
 from dateutil.parser import parse
@@ -30,7 +29,7 @@ async def test_heart_beat(test_client: TestClient):
  
 
 async def test_post_tours(test_client: TestClient, engine: AIOEngine, admin_token_header: dict):
-    p = Path(os.path.dirname(__file__)).resolve().parent
+    p = Path(__file__).parent.resolve().parent
     with open(p / "natours/dev-data/data/tours.json", "r") as fp:
         data = json.load(fp)
     for tour in data:
