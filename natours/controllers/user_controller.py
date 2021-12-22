@@ -52,7 +52,7 @@ async def get_user(Id: str):
     user = await db.find_one(User, User.id == ObjectId(Id))
     if not user:
         raise HTTPException(404, "cannot find user by Id")
-    return user
+    return select_user_keys(user)
 
 
 async def delete_user(Id):
@@ -65,7 +65,16 @@ async def delete_user(Id):
     return user
 
 
-def select_user_keys(user: User, keys: List = ["name", "lastname", "email", "createdAt"]):
-    return_user = user
-    response = {k:v for k, v in return_user.dict().items() if k in keys}
-    return response
+def select_user_keys(user: User, keys: List = [
+    "name",
+    "email",
+    "lastname",
+    "role",
+    "photo"]
+    ):
+    return_user = {}
+    return_user["id"] = f"{user.dict()['id']}"
+    for k, v in user.dict().items():
+        if k in keys:
+            return_user[k] = v
+    return return_user
