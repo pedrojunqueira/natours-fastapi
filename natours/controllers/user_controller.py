@@ -8,7 +8,7 @@ from natours.models.user_model import User
 
 authentication_fields = [
     "username",
-    "email",
+    "role"
     "password",
     "confirm_password",
     "password_changed_at",
@@ -66,6 +66,7 @@ async def delete_user(Id):
 
 
 def select_user_keys(user: User, keys: List = [
+    "username",
     "name",
     "email",
     "lastname",
