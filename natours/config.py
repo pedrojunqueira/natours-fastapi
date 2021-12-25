@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     MAIL_SSL: bool
     USE_CREDENTIALS: bool
     VALIDATE_CERTS: bool
+    RESET_PASSWORD_REDIRECT: str
 
     class Config:
         env_file = p / ".env"

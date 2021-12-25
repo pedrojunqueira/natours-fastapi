@@ -77,7 +77,7 @@ async def forgot_password(email: EmailSchema, request: Request):
 
     token = await authentication_controller.save_reset_password_token_to_db(address)
 
-    reset_url = f"{request.base_url}api/v1/users/resetpassword/{token}"
+    reset_url = f"{settings.RESET_PASSWORD_REDIRECT}/{token}"
 
     html = email_controller.render_email_message(reset_url)
 
