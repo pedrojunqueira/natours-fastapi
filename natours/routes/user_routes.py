@@ -150,6 +150,15 @@ async def delete_me(
     }
 
 
+@router.get("/{Id:str}")
+async def get_user(
+    Id: str,
+    current_user: User = Depends(authentication_controller.get_current_active_user),
+):
+    user = await user_controller.get_user(Id)
+    return {"status": "success", "user": user}
+
+
 ## secure all CUD routes
 
 admin_resource = authentication_controller.RoleChecker(["admin"])
@@ -163,13 +172,6 @@ async def get_all_users(
     return {"status": "success", "users": users}
 
 
-@router.get("/{Id:str}", dependencies=[Depends(admin_resource)])
-async def get_user(
-    Id: str,
-    current_user: User = Depends(authentication_controller.get_current_active_user),
-):
-    user = await user_controller.get_user(Id)
-    return {"status": "success", "user": user}
 
 
 @router.patch("/{Id:str}", dependencies=[Depends(admin_resource)])

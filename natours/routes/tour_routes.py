@@ -102,7 +102,7 @@ async def delete_tour(
     }
 
 
-@router.get("/{Id:str}/reviews", dependencies=[Depends(admin_resource)])
+@router.get("/{Id:str}/reviews")
 async def create_tour_reviews(
     Id: str,
     current_user: User = Depends(authentication_controller.get_current_active_user),
