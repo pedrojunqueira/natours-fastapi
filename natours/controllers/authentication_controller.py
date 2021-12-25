@@ -13,6 +13,7 @@ from natours.config import settings
 from natours.models.database import engine as db
 from natours.models.security_model import TokenData
 from natours.models.user_model import User
+from natours.controllers.user_controller import select_user_keys
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -28,6 +29,10 @@ def get_password_hash(password):
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
+
+
+def password_confirm_check(password, confirm_password):
+    return password == confirm_password
 
 
 async def authenticate_user(username: str, password: str):
@@ -121,6 +126,8 @@ async def verify_non_existing_user(user):
 
 
 async def signup(user):
+    if not password_confirm_check(user.password, user.confirm_password):
+        raise HTTPException(404, f"password does not match")
     hashed_password = get_password_hash(user.password)
     user.password = hashed_password
     user.confirm_password = hashed_password
@@ -133,7 +140,7 @@ async def signup(user):
         active=True,
     )
     user = await db.save(user)
-    return user.dict()
+    return user
 
 
 def create_password_reset_token():
@@ -179,6 +186,8 @@ async def get_token_user(token):
 
 
 async def save_reset_password(user, passwords):
+    if not password_confirm_check(passwords.password, passwords.confirm_password):
+        raise HTTPException(404, f"password does not match")
     hashed_password = get_password_hash(passwords.password)
     user.password = hashed_password
     user.confirm_password = hashed_password
@@ -190,6 +199,8 @@ async def save_reset_password(user, passwords):
 
 
 async def save_updated_password(user, passwords):
+    if not password_confirm_check(passwords.password, passwords.confirm_password):
+        raise HTTPException(404, f"password does not match")
     hashed_password = get_password_hash(passwords.password)
     user.password = hashed_password
     user.confirm_password = hashed_password

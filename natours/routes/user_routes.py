@@ -28,7 +28,8 @@ async def sign_up(user: User):
     )
     if verified_non_existing_user:
         created_user = await authentication_controller.signup(user)
-        return {"status": "success", "data": created_user}
+        response = user_controller.select_user_keys(created_user)
+        return {"status": "success", "data": response}
     else:
         raise HTTPException(404, f"email or user already exist")
 
