@@ -1,7 +1,22 @@
 from datetime import timedelta
+from typing import List
+from pathlib import Path
+import uuid
+
+import aiofiles
+from PIL import Image
 
 import fastapi
-from fastapi import Depends, HTTPException, status, Body, Request, Response
+from fastapi import (
+    Depends,
+    HTTPException,
+    status,
+    Body,
+    Request,
+    Response,
+    File,
+    UploadFile,
+)
 from fastapi.security import OAuth2PasswordRequestForm
 
 from natours.config import settings
@@ -159,6 +174,40 @@ async def get_user(
     return {"status": "success", "user": user}
 
 
+p = Path(__file__).parent.resolve().parent / "public/img/users"
+
+
+async def resize_picture(file_path):
+    output_size = (125, 125)
+    i = Image.open(file_path)
+    i.thumbnail(output_size)
+    i.save(file_path)
+
+
+def check_image_ext(path):
+    return path.suffix in [".png", ".jpeg", ".jpg", ".tif"]
+
+
+@router.post("/upload_user_image/")
+async def create_upload_files(
+    files: List[UploadFile] = File(...),
+    current_user: User = Depends(authentication_controller.get_current_active_user),
+):
+    file_suffix = uuid.uuid4().hex
+    file_path = p / f"user-{file_suffix}{Path(files[0].filename).suffix}"
+    user_photo_name = file_path.name
+    if not check_image_ext(p / files[0].filename):
+        raise HTTPException(
+            404, "image file extention allowed only .png .jpg .jpeg .tif"
+        )
+    async with aiofiles.open(file_path, "wb") as fp:
+        file_content = await files[0].read()
+        await fp.write(file_content)
+        await resize_picture(file_path)
+
+    return {"message": f"{files[0].filename} uploaded successfully"}
+
+
 ## secure all CUD routes
 
 admin_resource = authentication_controller.RoleChecker(["admin"])
@@ -170,8 +219,6 @@ async def get_all_users(
 ):
     users = await user_controller.get_users()
     return {"status": "success", "users": users}
-
-
 
 
 @router.patch("/{Id:str}", dependencies=[Depends(admin_resource)])
