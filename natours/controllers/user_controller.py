@@ -1,5 +1,9 @@
 from typing import List
+from pathlib import Path
+import uuid
 
+import aiofiles
+from PIL import Image
 from fastapi.exceptions import HTTPException
 from odmantic import ObjectId
 
@@ -79,3 +83,46 @@ def select_user_keys(user: User, keys: List = [
         if k in keys:
             return_user[k] = v
     return return_user
+
+
+p = Path(__file__).parent.resolve().parent / "public/img/users"
+
+
+async def resize_picture(file_path):
+    output_size = (125, 125)
+    i = Image.open(file_path)
+    i.thumbnail(output_size)
+    i.save(file_path)
+
+
+def check_image_ext(path):
+    return path.suffix in [".png", ".jpeg", ".jpg", ".tif"]
+
+
+def delete_old_photo_file(file):
+    path = p / file
+    try:
+        path.unlink()
+    except OSError as err:
+        print(err)
+
+async def update_user_photo_name(user, photo_name):
+    current_photo = user.photo
+    delete_old_photo_file(current_photo)
+    user.photo = photo_name
+    await db.save(user)
+
+async def upload_image(file, user):
+    file_suffix = uuid.uuid4().hex
+    file_path = p / f"user-{file_suffix}{Path(file.filename).suffix}"
+    user_photo_name = file_path.name
+    await update_user_photo_name(user, user_photo_name)
+    if not check_image_ext(p / file.filename):
+        raise HTTPException(
+            404, "image file extention allowed only .png .jpg .jpeg .tif"
+        )
+    async with aiofiles.open(file_path, "wb") as fp:
+        file_content = await file.read()
+        await fp.write(file_content)
+        await resize_picture(file_path)
+    return file.filename
