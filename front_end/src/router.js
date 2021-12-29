@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 
 import ToursList from "./pages/tours/ToursList.vue";
 import TourDetail from "./pages/tours/TourDetail.vue";
+import TourReview from "./pages/tours/TourReview.vue";
 import UserLogin from "./pages/users/UserLogin.vue";
 import UserSignUp from "./pages/users/UserSignUp.vue";
 import UserAccount from "./pages/users/UserAccount.vue";
@@ -15,6 +16,11 @@ const router = createRouter({
     { path: "/", redirect: "/tours" },
     { path: "/tours", component: ToursList },
     { path: "/tours/:id", component: TourDetail, meta: { requiresAuth: true } },
+    {
+      path: "/tour_review/:id",
+      component: TourReview,
+      meta: { requiresAuth: true },
+    },
     {
       path: "/tours/login",
       component: UserLogin,
