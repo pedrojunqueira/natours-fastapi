@@ -85,7 +85,7 @@ def select_user_keys(user: User, keys: List = [
     return return_user
 
 
-p = Path(__file__).parent.resolve().parent / "public/img/users"
+p = Path(__file__).parent.resolve().parent.parents[1] / "front_end/src/assets/img/users"
 
 
 async def resize_picture(file_path):
