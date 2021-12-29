@@ -4,7 +4,7 @@
 
 #### run app locally
 
-`uvicorn --app-dir=. natours.app:app --reload`
+`uvicorn --app-dir=./back_end natours.app:app --reload`
 
 #### pytest
 
