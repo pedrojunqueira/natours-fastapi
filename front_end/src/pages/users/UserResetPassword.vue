@@ -75,7 +75,7 @@ export default {
         confirm_password: this.confirm_password,
       };
       const token = this.$route.params.reset_token;
-      const url = `http://127.0.0.1:8000/api/v1/users/resetpassword/${token}`;
+      const url = `${process.env.VUE_APP_BACKEND_SERVER}/api/v1/users/resetpassword/${token}`;
 
       try {
         const response = await axios({

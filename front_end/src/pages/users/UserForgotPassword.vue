@@ -54,7 +54,7 @@ export default {
       try {
         const response = await axios({
           method: "post",
-          url: `http://127.0.0.1:8000/api/v1/users/forgotpassword`,
+          url: `${process.env.VUE_APP_BACKEND_SERVER}/api/v1/users/forgotpassword`,
           data: body,
         });
         if (response.status == 200) {

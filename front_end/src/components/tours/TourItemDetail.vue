@@ -183,7 +183,7 @@ export default {
         };
         const response = await axios({
           method: "get",
-          url: `http://127.0.0.1:8000/api/v1/tours/${this.$route.params.id}/reviews`,
+          url: `${process.env.VUE_APP_BACKEND_SERVER}/api/v1/tours/${this.$route.params.id}/reviews`,
           headers,
         });
         if (response.status == 200) {

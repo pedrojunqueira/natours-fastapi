@@ -269,7 +269,7 @@ export default {
 
       const response = await axios({
         method: "get",
-        url: `http://127.0.0.1:8000/api/v1/users/${Id}`,
+        url: `${process.env.VUE_APP_BACKEND_SERVER}/api/v1/users/${Id}`,
         headers,
       });
       if (!response.status == 200) {
@@ -291,7 +291,7 @@ export default {
         const headers = { Authorization: `Bearer ${token}` };
         const response = await axios({
           method: "patch",
-          url: "http://127.0.0.1:8000/api/v1/users/updateme",
+          url: `${process.env.VUE_APP_BACKEND_SERVER}/api/v1/users/updateme`,
           data: newMe,
           headers: headers,
         });
@@ -315,7 +315,7 @@ export default {
         const headers = { Authorization: `Bearer ${token}` };
         const response = await axios({
           method: "patch",
-          url: "http://127.0.0.1:8000/api/v1/users/updatemypassword",
+          url: "{process.env.VUE_APP_BACKEND_SERVER}/api/v1/users/updatemypassword",
           data: newPassword,
           headers: headers,
         });
@@ -342,7 +342,7 @@ export default {
         const token = this.$store.getters.token;
         const config = {
           method: "post",
-          url: "http://127.0.0.1:8000/api/v1/users/upload_user_image/",
+          url: `${process.env.VUE_APP_BACKEND_SERVER}/api/v1/users/upload_user_image/`,
           headers: {
             Authorization: `Bearer ${token}`,
           },
