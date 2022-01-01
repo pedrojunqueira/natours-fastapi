@@ -80,6 +80,7 @@ def mock_collection(engine: AIOEngine, monkeypatch):
 
     return f
 
+
 @pytest.fixture(scope="session")
 async def test_client(engine: AIOEngine) -> TestClient:
     with patch("natours.models.database.engine", engine):
@@ -88,25 +89,24 @@ async def test_client(engine: AIOEngine) -> TestClient:
         async with TestClient(app) as client:
             yield client
 
+
 @pytest.fixture(scope="session")
 async def admin_token_header(test_client: TestClient, engine: AIOEngine):
     body = {
-            "username":"admin",
-            "password":"secret",
-            "confirm_password":"secret",
-            "email": "admin@email.com"
-            }
+        "username": "admin",
+        "password": "secret",
+        "confirm_password": "secret",
+        "email": "admin@email.com",
+    }
     response = await test_client.post("/api/v1/users/signup", json=body)
     admin = await engine.find_one(User, User.username == "admin")
     admin.role = "admin"
     user = await engine.save(admin)
-    param = {"username":"admin", "password":"secret"}
-    headers = {
-    'Content-Type': 'application/x-www-form-urlencoded'
-    }
-    response =  await test_client.post("/api/v1/users/token", data=urlencode(param), headers=headers)
+    param = {"username": "admin", "password": "secret"}
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    response = await test_client.post(
+        "/api/v1/users/token", data=urlencode(param), headers=headers
+    )
     token = response.json()["access_token"]
-    h = {
-     'Authorization': f'Bearer {token}'
-    }
+    h = {"Authorization": f"Bearer {token}"}
     return h

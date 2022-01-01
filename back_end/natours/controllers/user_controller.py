@@ -12,8 +12,7 @@ from natours.models.user_model import User
 
 authentication_fields = [
     "username",
-    "role"
-    "password",
+    "role" "password",
     "confirm_password",
     "password_changed_at",
     "password_reset_token",
@@ -69,14 +68,9 @@ async def delete_user(Id):
     return user
 
 
-def select_user_keys(user: User, keys: List = [
-    "username",
-    "name",
-    "email",
-    "lastname",
-    "role",
-    "photo"]
-    ):
+def select_user_keys(
+    user: User, keys: List = ["username", "name", "email", "lastname", "role", "photo"]
+):
     return_user = {}
     return_user["id"] = f"{user.dict()['id']}"
     for k, v in user.dict().items():
@@ -106,11 +100,13 @@ def delete_old_photo_file(file):
     except OSError as err:
         print(err)
 
+
 async def update_user_photo_name(user, photo_name):
     current_photo = user.photo
     delete_old_photo_file(current_photo)
     user.photo = photo_name
     await db.save(user)
+
 
 async def upload_image(file, user):
     file_suffix = uuid.uuid4().hex

@@ -17,6 +17,7 @@ conf = ConnectionConfig(
 
 email_client = FastMail(conf)
 
+
 def render_email_message(reset_url):
 
     html = f"""

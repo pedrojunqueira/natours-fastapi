@@ -11,19 +11,21 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 
 class Review(Model):
-    review:str
-    rating:int = Field(gt=0, lt=6)
-    user:ObjectId
-    tour:ObjectId
+    review: str
+    rating: int = Field(gt=0, lt=6)
+    user: ObjectId
+    tour: ObjectId
     createdAt: datetime = Field(default=datetime.now())
-    
+
     class Config:
         collection = "reviews"
+
 
 p = Path(__file__).parent.resolve()
 
 with open(p / "dev-data" / "data" / "reviews.json", "r") as fp:
     revs = json.load(fp)
+
 
 def prep_data(rv):
     rv["id"] = rv["_id"]
@@ -31,7 +33,7 @@ def prep_data(rv):
     return Review(**rv)
 
 
-reviews =  [prep_data(r) for r in revs]
+reviews = [prep_data(r) for r in revs]
 
 
 class User(Model):
@@ -58,17 +60,20 @@ class User(Model):
     class Config:
         collection = "users"
 
+
 class StartLocation(BaseModel):
     description: str
     type: str
     coordinates: List[float]
     address: str
 
+
 class Location(EmbeddedModel):
     description: str
     type: str
     coordinates: List[float]
     day: int
+
 
 class Tour(Model):
     name: str
@@ -88,16 +93,17 @@ class Tour(Model):
     imageCover: str
     guides: Optional[List[ObjectId]]
     locations: Optional[List[Location]]
-    
+
     class Config:
         collection = "tours"
 
 
-def prep_tour(tour:dict) -> Tour:
-    tour["startDates"] = [ parse(d, ignoretz=True) for d in tour["startDates"]]
+def prep_tour(tour: dict) -> Tour:
+    tour["startDates"] = [parse(d, ignoretz=True) for d in tour["startDates"]]
     tour["id"] = tour["_id"]
     del tour["_id"]
     return Tour(**tour)
+
 
 p = Path(__file__).parent.resolve()
 
@@ -105,8 +111,9 @@ with open(p / "dev-data" / "data" / "tours.json", "r") as fp:
     trs = json.load(fp)
 
 
-def name_to_username(name:str):
-  return "".join(name.split(" ")).lower()
+def name_to_username(name: str):
+    return "".join(name.split(" ")).lower()
+
 
 p = Path(__file__).parent.resolve()
 
@@ -115,14 +122,14 @@ with open(p / "dev-data" / "data" / "users.json", "r") as fp:
 
 users = []
 for u in usr:
-  u["confirm_password"] =u["password"]
-  u["username"] = name_to_username(u["name"])
-  u["id"] = u["_id"]
-  del u["_id"]
-  u_ = User(**u)
-  users.append(u_)
-  
-  
+    u["confirm_password"] = u["password"]
+    u["username"] = name_to_username(u["name"])
+    u["id"] = u["_id"]
+    del u["_id"]
+    u_ = User(**u)
+    users.append(u_)
+
+
 client = AsyncIOMotorClient("mongodb://localhost:27017/test")
 engine = AIOEngine(motor_client=client, database="test")
 
@@ -134,4 +141,3 @@ loop.run_until_complete(engine.save_all([prep_tour(t) for t in trs]))
 loop.run_until_complete(engine.save_all(users))
 loop.run_until_complete(engine.save_all(reviews))
 loop.close()
-

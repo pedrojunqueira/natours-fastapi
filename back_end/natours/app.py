@@ -8,8 +8,21 @@ from natours.routes import heart, tour_routes, user_routes, review_routes
 
 limiter = Limiter(key_func=get_remote_address)
 
+origins = ['*']
 
-origins = ["http://localhost:8080", "http://192.168.1.103:8080", "localhost:8080"]
+origins = [
+    "http://localhost:8081",
+    "http://192.168.1.103:8081",
+    "localhost:8081",
+    "http://0.0.0.0:8081",
+    "http://127.0.0.1:8081",
+    "http://localhost:8080",
+    "http://192.168.1.103:8080",
+    "localhost:8080",
+    "http://0.0.0.0:8080",
+    "http://127.0.0.1:8080",
+    "*",
+]
 
 
 def create_application() -> FastAPI:
@@ -28,7 +41,7 @@ def create_application() -> FastAPI:
     application.include_router(heart.router)
     application.add_middleware(
         CORSMiddleware,
-        allow_origins=origins,
+        allow_origins=["*"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
