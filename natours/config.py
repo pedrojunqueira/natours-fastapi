@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     USE_CREDENTIALS: bool
     VALIDATE_CERTS: bool
     RESET_PASSWORD_REDIRECT: str
+    USER_IMAGE_PATH: str
 
     class Config:
         env_file = p / ".env"

@@ -9,6 +9,7 @@ from odmantic import ObjectId
 
 from natours.models.database import engine as db
 from natours.models.user_model import User
+from natours.config import settings
 
 authentication_fields = [
     "username",
@@ -79,7 +80,7 @@ def select_user_keys(
     return return_user
 
 
-p = Path(__file__).parent.resolve().parent / "public/img/users"
+p = Path(__file__).parent.resolve().parent / settings.USER_IMAGE_PATH
 
 
 async def resize_picture(file_path):
