@@ -1,3 +1,4 @@
+aiofiles==0.8.0
 aioredis==2.0.0
 aiosmtplib==1.1.6
 anyio==3.3.4
@@ -35,6 +36,7 @@ multidict==5.2.0
 odmantic==0.3.5
 packaging==21.3
 passlib==1.7.4
+Pillow==8.4.0
 pluggy==1.0.0
 py==1.11.0
 pyasn1==0.4.8

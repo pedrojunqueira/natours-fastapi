@@ -1,0 +1,10 @@
+version: "3"
+
+services:
+  back-end:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    image: pedrojunqueira/natours-fastapi
+    ports:
+      - "8082:80"
