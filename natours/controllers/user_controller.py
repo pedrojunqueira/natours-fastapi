@@ -79,7 +79,7 @@ def select_user_keys(
     return return_user
 
 
-p = Path(__file__).parent.resolve().parent.parents[1] / "front_end/src/assets/img/users"
+p = Path(__file__).parent.resolve().parent / "public/img/users"
 
 
 async def resize_picture(file_path):
@@ -94,6 +94,8 @@ def check_image_ext(path):
 
 
 def delete_old_photo_file(file):
+    if not file:
+        return
     path = p / file
     try:
         path.unlink()

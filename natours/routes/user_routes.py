@@ -175,8 +175,13 @@ async def create_upload_files(
     current_user: User = Depends(authentication_controller.get_current_active_user),
 ):
     file = await user_controller.upload_image(files[0], current_user)
-
     return {"message": f"{file} uploaded successfully"}
+    
+    # from pathlib import Path
+    # p = Path(__file__).parent.resolve().parent / "public/img/users"
+    # print(p)
+
+    # return {"test": "testing"}
 
 
 ## secure all CUD routes
