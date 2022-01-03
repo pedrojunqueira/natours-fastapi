@@ -38,7 +38,8 @@ class Settings(BaseSettings):
                           'http://front-end:8085',
                           'http://127.0.0.1:8085',
                           "front-end:80",
-                          "http://front-end:80"
+                          "http://front-end:80",
+                          "http://194.195.124.103:8084",
                           "*"]
     class Config:
         env_file = p / ".env"
