@@ -9,11 +9,11 @@ services:
       - 8085:80
   frontend:
     build:
-      context: ./natours-vue
+      context: ./natours-frontend
     image: pedrojunqueira/natours-vue
     ports:
       - 8084:80
     env_file:
-      - ./natours-vue/.env
+      - ./natours-frontend/.env
     depends_on:
       - back-end
