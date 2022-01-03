@@ -1,10 +1,19 @@
-version: "3"
+version: "3.8"
 
 services:
   back-end:
     build:
-      dockerfile: Dockerfile
       context: .
     image: pedrojunqueira/natours-fastapi
     ports:
-      - "8082:80"
+      - 8085:80
+  frontend:
+    build:
+      context: ./natours-vue
+    image: pedrojunqueira/natours-vue
+    ports:
+      - 8084:80
+    env_file:
+      - ./natours-vue/.env
+    depends_on:
+      - back-end

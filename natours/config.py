@@ -29,9 +29,20 @@ class Settings(BaseSettings):
     VALIDATE_CERTS: bool
     RESET_PASSWORD_REDIRECT: str
     USER_IMAGE_PATH: str
-
+    CORS_ORIGINS: list = ['http://0.0.0.0:8084',
+                          'http://0.0.0.0:8084',
+                          'http://localhost:8084',
+                          'http://front-end:8084',
+                          'http://0.0.0.0:8085',
+                          'http://localhost:8085',
+                          'http://front-end:8085',
+                          'http://127.0.0.1:8085',
+                          "front-end:80",
+                          "http://front-end:80"
+                          "*"]
     class Config:
         env_file = p / ".env"
+        env_file_encoding = 'utf-8'
 
 
 @lru_cache()
