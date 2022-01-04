@@ -1,13 +1,18 @@
 version: "3.8"
-
+networks:
+  natours:
+    driver: bridge
 services:
   back-end:
+    container_name: fastapi
     build:
       context: .
     image: pedrojunqueira/natours-fastapi
-    ports:
-      - 8085:80
+
+    networks:
+      - natours
   frontend:
+    container_name: vue
     build:
       context: ./natours-frontend
     image: pedrojunqueira/natours-vue
@@ -17,3 +22,5 @@ services:
       - ./natours-frontend/.env
     depends_on:
       - back-end
+    networks:
+      - natours
