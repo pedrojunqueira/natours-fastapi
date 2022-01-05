@@ -104,24 +104,17 @@ def delete_old_photo_file(file):
         print(err)
 
 
-async def update_user_photo_name(user, photo_name):
-    current_photo = user.photo
-    delete_old_photo_file(current_photo)
-    user.photo = photo_name
-    await db.save(user)
-
-
-async def upload_image(file, user):
-    file_suffix = uuid.uuid4().hex
-    file_path = p / f"user-{file_suffix}{Path(file.filename).suffix}"
-    user_photo_name = file_path.name
-    await update_user_photo_name(user, user_photo_name)
-    if not check_image_ext(p / file.filename):
-        raise HTTPException(
-            404, "image file extention allowed only .png .jpg .jpeg .tif"
-        )
-    async with aiofiles.open(file_path, "wb") as fp:
-        file_content = await file.read()
-        await fp.write(file_content)
-        await resize_picture(file_path)
-    return file.filename
+# async def upload_image(file, user):
+#     file_suffix = uuid.uuid4().hex
+#     file_path = p / f"user-{file_suffix}{Path(file.filename).suffix}"
+#     user_photo_name = file_path.name
+#     await update_user_photo_name(user, user_photo_name)
+#     if not check_image_ext(p / file.filename):
+#         raise HTTPException(
+#             404, "image file extention allowed only .png .jpg .jpeg .tif"
+#         )
+#     async with aiofiles.open(file_path, "wb") as fp:
+#         file_content = await file.read()
+#         await fp.write(file_content)
+#         await resize_picture(file_path)
+#     return file.filename

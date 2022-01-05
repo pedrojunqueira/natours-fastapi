@@ -35,12 +35,18 @@ class Settings(BaseSettings):
                           'http://front-end:8084',
                           'http://0.0.0.0:8085',
                           'http://localhost:8085',
-                          'http://front-end:8085',
                           'http://127.0.0.1:8085',
-                          "front-end:80",
-                          "http://front-end:80",
                           "http://194.195.124.103:8084",
                           "*"]
+    AZURE_TENANT_ID: str
+    AZURE_CLIENT_ID: str
+    AZURE_CLIENT_SECRET: str
+    AZURE_SUBSCRIPTION_ID: str
+    AZURE_STORAGE_ACCOUNT: str
+    AZURE_VAULT_ACCOUNT: str
+    AZURE_STORAGE_KEY_NAME : str
+    AZURE_BLOG_USER_IMAGE_PATH : str
+    AZURE_APP_BLOB_NAME : str
     class Config:
         env_file = p / ".env"
         env_file_encoding = 'utf-8'
