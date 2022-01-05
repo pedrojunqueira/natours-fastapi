@@ -238,7 +238,7 @@ export default {
     image() {
       const photo = this.photo;
       try {
-        const folder_photo = require(`@/assets/img/users/${photo}`);
+        const folder_photo = `${photo}`;
         return folder_photo;
       } catch (err) {
         console.log(err.message);
