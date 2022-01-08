@@ -14,6 +14,7 @@ from fastapi import (
 )
 from fastapi.security import OAuth2PasswordRequestForm
 
+
 from natours.config import settings
 from natours.controllers import (
     authentication_controller,
@@ -91,9 +92,11 @@ async def forgot_password(email: EmailSchema, request: Request):
 
     reset_url = f"{settings.RESET_PASSWORD_REDIRECT}/{token}"
 
-    html = email_controller.render_email_message(reset_url)
+    message_body = email_controller.render_email_message_reset_password(email=address, reset_url=reset_url)
 
-    await email_controller.send_password_reset_email(address, html)
+    message = email_controller.prepare_email_message("reset password token for natours app (expire in 15 minutes)", address, message_body)
+
+    email_controller.send_email_sync(address, message)
 
     return {"status": "success", "message": f"email sent to {address} "}
 
@@ -105,7 +108,13 @@ async def reset_password(token: str, new_passwords: PasswordSchema):
 
     await authentication_controller.save_reset_password(user, new_passwords)
 
-    await email_controller.send_password_reset_confirmation(user.email)
+    message_body = email_controller.render_email_message_confirm_password_reset(email=user.email)
+
+    message = email_controller.prepare_email_message("Your Password was successfully reset", user.email, message_body)
+
+    email_controller.send_email_sync(user.email, message)
+
+    # await email_controller.send_password_reset_confirmation(user.email)
 
     # log the user in TODO
 

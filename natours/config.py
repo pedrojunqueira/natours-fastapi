@@ -36,6 +36,8 @@ class Settings(BaseSettings):
                           'http://0.0.0.0:8085',
                           'http://localhost:8085',
                           'http://127.0.0.1:8085',
+                          'http://localhost:8000',
+                          'http://127.0.0.1:8000',
                           "http://194.195.124.103:8084",
                           "*"]
     AZURE_TENANT_ID: str
@@ -47,6 +49,13 @@ class Settings(BaseSettings):
     AZURE_STORAGE_KEY_NAME : str
     AZURE_BLOG_USER_IMAGE_PATH : str
     AZURE_APP_BLOB_NAME : str
+    GMAIL_USERNAME: str
+    GMAIL_PASSWORD: str
+    GMAIL_FROM: str
+    GMAIL_PORT: int
+    GMAIL_SERVER: str
+    GMAIL_TLS: str
+    GMAIL_SSL: str
     class Config:
         env_file = p / ".env"
         env_file_encoding = 'utf-8'

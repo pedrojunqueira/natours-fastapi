@@ -1,21 +1,53 @@
+import smtplib, ssl
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from pathlib import Path
+
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
 
 from natours.config import settings
+from natours.controllers.email_template import render_email_html
 
-conf = ConnectionConfig(
-    MAIL_USERNAME=settings.MAIL_USERNAME,
-    MAIL_PASSWORD=settings.MAIL_PASSWORD,
-    MAIL_FROM=settings.MAIL_FROM,
-    MAIL_PORT=settings.MAIL_PORT,
-    MAIL_SERVER=settings.MAIL_SERVER,
-    MAIL_TLS=settings.MAIL_TLS,
-    MAIL_SSL=settings.MAIL_TLS,
-    USE_CREDENTIALS=settings.USE_CREDENTIALS,
-    VALIDATE_CERTS=settings.VALIDATE_CERTS,
-)
+# conf = ConnectionConfig(
+#     MAIL_USERNAME=settings.MAIL_USERNAME,
+#     MAIL_PASSWORD=settings.MAIL_PASSWORD,
+#     MAIL_FROM=settings.MAIL_FROM,
+#     MAIL_PORT=settings.MAIL_PORT,
+#     MAIL_SERVER=settings.MAIL_SERVER,
+#     MAIL_TLS=settings.MAIL_TLS,
+#     MAIL_SSL=settings.MAIL_TLS,
+#     USE_CREDENTIALS=settings.USE_CREDENTIALS,
+#     VALIDATE_CERTS=settings.VALIDATE_CERTS,
+# )
+
+# if settings.FASTAPI_ENV == "production":
+#     conf = ConnectionConfig(
+#     MAIL_USERNAME=settings.GMAIL_USERNAME,
+#     MAIL_PASSWORD=settings.GMAIL_PASSWORD,
+#     MAIL_FROM=settings.GMAIL_FROM,
+#     MAIL_PORT=settings.GMAIL_PORT,
+#     MAIL_SERVER=settings.GMAIL_SERVER,
+#     MAIL_TLS=settings.GMAIL_TLS,
+#     MAIL_SSL=settings.GMAIL_TLS,
+#     USE_CREDENTIALS=settings.USE_CREDENTIALS,
+#     VALIDATE_CERTS=settings.VALIDATE_CERTS,
+#     )
 
 
-email_client = FastMail(conf)
+# email_client = FastMail(conf)
+
+EMAIL_USER_NAME = settings.MAIL_USERNAME
+EMAIL_SENDER = settings.MAIL_FROM
+EMAIL_PASSWORD = settings.MAIL_PASSWORD
+EMAIL_SERVER = settings.MAIL_SERVER
+EMAIL_PORT = settings.MAIL_PORT
+
+if settings.FASTAPI_ENV == "production":
+    EMAIL_USER_NAME = settings.GMAIL_USERNAME
+    EMAIL_SENDER = settings.GMAIL_USERNAME
+    EMAIL_PASSWORD = settings.GMAIL_PASSWORD
+    EMAIL_SERVER = settings.GMAIL_SERVER
+    EMAIL_PORT = settings.GMAIL_PORT
 
 
 def render_email_message(reset_url):
@@ -26,24 +58,74 @@ def render_email_message(reset_url):
 
     return html
 
+def render_email_message_reset_password(*args, **kwargs):
 
-async def send_password_reset_email(email, html):
-    message = MessageSchema(
-        subject="reset password token for natours app (expire in 15 minutes)",
-        recipients=[email],
-        body=html,
-        subtype="html",
-    )
-    email_client = FastMail(conf)
-    await email_client.send_message(message)
+    body_template = f'''
+                                <p> Hi {kwargs.get("email") or kwargs.get("name")} ,</p>
+                                <p>
+                                    reset your password visiting this url: { kwargs.get("reset_url") }
+                                </p>
+                                <p>
+                                    If you need any help with booking your next
+                                    tour, please don't hesitate to contact me!
+                                </p>
+                                <p>- Pedro Junqueira, CEO</p>
+    '''
+
+    return body_template
 
 
-async def send_password_reset_confirmation(email):
-    message = MessageSchema(
-        subject="you changed your password",
-        recipients=[email],
-        body=f"<p> password for email: {email} was successfully changed </p> ",
-        subtype="html",
-    )
-    client = FastMail(conf)
-    await client.send_message(message)
+def render_email_message_confirm_password_reset(*args, **kwargs):
+
+    body_template = f'''
+                    <p> password for email: {kwargs.get("email")} was successfully changed </p> 
+    '''
+
+    return body_template
+
+
+def prepare_email_message(subject, email_to, body_template):
+    message = MIMEMultipart("alternative")
+    message["Subject"] = subject
+    message["From"] = EMAIL_SENDER
+    message["To"] = email_to
+
+    body = body_template
+
+    # Create the plain-text and HTML version of your message
+    text = f"""
+    {body}
+    """
+    html = render_email_html(body_template=body)
+
+    # Turn these into plain/html MIMEText objects
+    part1 = MIMEText(text, "plain")
+    part2 = MIMEText(html, "html")
+
+    # Add HTML/plain-text parts to MIMEMultipart message
+    # The email client will try to render the last part first
+    message.attach(part1)
+    message.attach(part2)
+
+    return message
+
+
+def send_email_sync(email, message):
+    username = EMAIL_USER_NAME
+    sender_email = EMAIL_SENDER
+    receiver_email = email
+    password = EMAIL_PASSWORD
+
+    if settings.FASTAPI_ENV == "production":
+        context = ssl.create_default_context()
+        with smtplib.SMTP_SSL(EMAIL_SERVER, EMAIL_PORT, context=context) as server:
+            server.login(sender_email, password)
+            server.sendmail(
+                sender_email, receiver_email, message.as_string()
+            )
+        return
+
+    with smtplib.SMTP(EMAIL_SERVER, EMAIL_PORT) as server:
+        server.login(username, password)
+        server.sendmail(sender_email, receiver_email, message.as_string())
+    
