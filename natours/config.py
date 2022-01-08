@@ -39,6 +39,7 @@ class Settings(BaseSettings):
                           'http://localhost:8000',
                           'http://127.0.0.1:8000',
                           "http://194.195.124.103:8084",
+                          "http://194.195.124.103:80",
                           "*"]
     AZURE_TENANT_ID: str
     AZURE_CLIENT_ID: str
