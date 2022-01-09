@@ -33,7 +33,6 @@ export default {
       const photo = this.$store.getters.me.photo;
       try {
         const folder_photo = `${photo}`;
-        console.log(folder_photo);
         return folder_photo;
       } catch (err) {
         console.log(err.message);

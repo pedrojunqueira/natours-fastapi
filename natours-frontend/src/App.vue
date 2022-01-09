@@ -18,8 +18,6 @@ export default {
   },
   async created() {
     this.$store.dispatch("tryLogin");
-    console.log(process.env.VUE_APP_BACKEND_SERVER);
-    await this.heartbeat();
   },
   watch: {
     didAutoLogout(curValue, oldValue) {
