@@ -29,27 +29,29 @@ class Settings(BaseSettings):
     VALIDATE_CERTS: bool
     RESET_PASSWORD_REDIRECT: str
     USER_IMAGE_PATH: str
-    CORS_ORIGINS: list = ['http://0.0.0.0:8084',
-                          'http://0.0.0.0:8084',
-                          'http://localhost:8084',
-                          'http://front-end:8084',
-                          'http://0.0.0.0:8085',
-                          'http://localhost:8085',
-                          'http://127.0.0.1:8085',
-                          'http://localhost:8000',
-                          'http://127.0.0.1:8000',
-                          "http://194.195.124.103:8084",
-                          "http://194.195.124.103:80",
-                          "*"]
+    CORS_ORIGINS: list = [
+        "http://0.0.0.0:8084",
+        "http://0.0.0.0:8084",
+        "http://localhost:8084",
+        "http://front-end:8084",
+        "http://0.0.0.0:8085",
+        "http://localhost:8085",
+        "http://127.0.0.1:8085",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+        "http://194.195.124.103:8084",
+        "http://194.195.124.103:80",
+        "*",
+    ]
     AZURE_TENANT_ID: str
     AZURE_CLIENT_ID: str
     AZURE_CLIENT_SECRET: str
     AZURE_SUBSCRIPTION_ID: str
     AZURE_STORAGE_ACCOUNT: str
     AZURE_VAULT_ACCOUNT: str
-    AZURE_STORAGE_KEY_NAME : str
-    AZURE_BLOG_USER_IMAGE_PATH : str
-    AZURE_APP_BLOB_NAME : str
+    AZURE_STORAGE_KEY_NAME: str
+    AZURE_BLOG_USER_IMAGE_PATH: str
+    AZURE_APP_BLOB_NAME: str
     GMAIL_USERNAME: str
     GMAIL_PASSWORD: str
     GMAIL_FROM: str
@@ -57,9 +59,10 @@ class Settings(BaseSettings):
     GMAIL_SERVER: str
     GMAIL_TLS: str
     GMAIL_SSL: str
+
     class Config:
         env_file = p / ".env"
-        env_file_encoding = 'utf-8'
+        env_file_encoding = "utf-8"
 
 
 @lru_cache()

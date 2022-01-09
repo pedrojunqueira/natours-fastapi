@@ -9,7 +9,7 @@ from natours.config import settings
 
 limiter = Limiter(key_func=get_remote_address)
 
-origins = ['*']
+origins = ["*"]
 
 origins = settings.CORS_ORIGINS
 

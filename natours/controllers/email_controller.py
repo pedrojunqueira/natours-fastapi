@@ -31,9 +31,10 @@ def render_email_message(reset_url):
 
     return html
 
+
 def render_email_message_reset_password(*args, **kwargs):
 
-    body_template = f'''
+    body_template = f"""
                                 <p> Hi {kwargs.get("email") or kwargs.get("name")} ,</p>
                                 <p>
                                     reset your password visiting this url: { kwargs.get("reset_url") }
@@ -43,16 +44,16 @@ def render_email_message_reset_password(*args, **kwargs):
                                     tour, please don't hesitate to contact me!
                                 </p>
                                 <p>- Pedro Junqueira, CEO</p>
-    '''
+    """
 
     return body_template
 
 
 def render_email_message_confirm_password_reset(*args, **kwargs):
 
-    body_template = f'''
+    body_template = f"""
                     <p> password for email: {kwargs.get("email")} was successfully changed </p> 
-    '''
+    """
 
     return body_template
 
@@ -93,12 +94,9 @@ def send_email_sync(email, message):
         context = ssl.create_default_context()
         with smtplib.SMTP_SSL(EMAIL_SERVER, EMAIL_PORT, context=context) as server:
             server.login(sender_email, password)
-            server.sendmail(
-                sender_email, receiver_email, message.as_string()
-            )
+            server.sendmail(sender_email, receiver_email, message.as_string())
         return
 
     with smtplib.SMTP(EMAIL_SERVER, EMAIL_PORT) as server:
         server.login(username, password)
         server.sendmail(sender_email, receiver_email, message.as_string())
-    
