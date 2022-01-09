@@ -1,4 +1,12 @@
-# FastAPI back-end
+<p align="center">
+<a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
+</p>
+
+# Application Architecture
+
+![Application Architecture](https://github.com/pedrojunqueira/Azure_CV/blob/master/natours/public/img/Diagram.jpg/raw=true)
+
+## FastAPI back-end
 
 ### cheat sheet
 
@@ -29,3 +37,25 @@ missing coverage
 `black .`
 
 `isort **/*.py`
+
+### Docker commands
+
+#### build
+
+`docker-compose up --build -d`
+
+#### shut down
+
+`docker-compose down`
+
+#### start
+
+`docker-compose up`
+
+#### Check running containers
+
+`docker ps`
+
+#### attach to logs
+
+`docker-compose logs -f -t`
