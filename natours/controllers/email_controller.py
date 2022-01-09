@@ -8,33 +8,6 @@ from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
 from natours.config import settings
 from natours.controllers.email_template import render_email_html
 
-# conf = ConnectionConfig(
-#     MAIL_USERNAME=settings.MAIL_USERNAME,
-#     MAIL_PASSWORD=settings.MAIL_PASSWORD,
-#     MAIL_FROM=settings.MAIL_FROM,
-#     MAIL_PORT=settings.MAIL_PORT,
-#     MAIL_SERVER=settings.MAIL_SERVER,
-#     MAIL_TLS=settings.MAIL_TLS,
-#     MAIL_SSL=settings.MAIL_TLS,
-#     USE_CREDENTIALS=settings.USE_CREDENTIALS,
-#     VALIDATE_CERTS=settings.VALIDATE_CERTS,
-# )
-
-# if settings.FASTAPI_ENV == "production":
-#     conf = ConnectionConfig(
-#     MAIL_USERNAME=settings.GMAIL_USERNAME,
-#     MAIL_PASSWORD=settings.GMAIL_PASSWORD,
-#     MAIL_FROM=settings.GMAIL_FROM,
-#     MAIL_PORT=settings.GMAIL_PORT,
-#     MAIL_SERVER=settings.GMAIL_SERVER,
-#     MAIL_TLS=settings.GMAIL_TLS,
-#     MAIL_SSL=settings.GMAIL_TLS,
-#     USE_CREDENTIALS=settings.USE_CREDENTIALS,
-#     VALIDATE_CERTS=settings.VALIDATE_CERTS,
-#     )
-
-
-# email_client = FastMail(conf)
 
 EMAIL_USER_NAME = settings.MAIL_USERNAME
 EMAIL_SENDER = settings.MAIL_FROM

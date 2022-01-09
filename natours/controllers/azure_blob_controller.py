@@ -1,5 +1,7 @@
 import uuid
 import os
+from io import BytesIO
+from PIL import Image
 
 from azure.identity import DefaultAzureCredential
 from azure.keyvault.secrets import SecretClient
@@ -44,6 +46,15 @@ async def update_user_photo_name(user, photo_url):
     await db.save(user)
 
 
+def resize_picture(image:BytesIO):
+    output_size = (125, 125)
+    i = Image.open(image)
+    i.thumbnail(output_size)
+    img_byte_arr = BytesIO()
+    i.save(img_byte_arr, format=i.format)
+    img_byte_arr = img_byte_arr.getvalue()
+    return img_byte_arr
+
 async def upload_image_to_blob(file, user):
     
     file_suffix = uuid.uuid4().hex
@@ -63,9 +74,12 @@ async def upload_image_to_blob(file, user):
     
     file_content = await file.read()
 
+    image_io = BytesIO(file_content)
+
+    image_resized = resize_picture(image_io)
+
     blob_client = create_blob_client(file_name=file_name)
     
-    blob_client.upload_blob(data=file_content)
+    blob_client.upload_blob(data=image_resized)
 
-    
     return file.filename
