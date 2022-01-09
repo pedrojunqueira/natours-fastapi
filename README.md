@@ -4,7 +4,7 @@
 
 # Application Architecture
 
-![Application Architecture](https://github.com/pedrojunqueira/Azure_CV/blob/master/natours/public/img/Diagram.jpg/raw=true)
+![Application Architecture](https://github.com/pedrojunqueira/natours-fastapi/blob/master/natours/public/img/Diagram.jpg?raw=true)
 
 ## FastAPI back-end
 
