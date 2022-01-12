@@ -38,3 +38,4 @@ azure-python-sdk
 image.html
 upload_azure.py
 gmail.py
+*.log

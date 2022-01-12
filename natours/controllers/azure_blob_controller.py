@@ -2,6 +2,7 @@ import uuid
 import os
 from io import BytesIO
 from PIL import Image
+import logging
 
 from azure.identity import DefaultAzureCredential
 from azure.keyvault.secrets import SecretClient
@@ -10,6 +11,18 @@ from fastapi.exceptions import HTTPException
 
 from natours.models.database import engine as db
 from natours.config import settings
+
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+formatter = logging.Formatter('%(asctime)s:%(name)s:%(message)s')
+
+file_handler = logging.FileHandler('./logs/azure.log')
+file_handler.setLevel(logging.INFO)
+file_handler.setFormatter(formatter)
+
+logger.addHandler(file_handler)
 
 
 def create_blob_client(file_name):
@@ -70,25 +83,36 @@ async def upload_image_to_blob(file, user):
 
     file_name = f"{settings.AZURE_BLOG_USER_IMAGE_PATH}user-{file_suffix}{ext}"
 
-    user_photo_url = (
-        f"{settings.AZURE_STORAGE_ACCOUNT}/{settings.AZURE_APP_BLOB_NAME}/{file_name}"
-    )
-
-    await update_user_photo_name(user, user_photo_url)
-
     if not check_image_ext(file_name):
         raise HTTPException(
             404, "image file extention allowed only .png .jpg .jpeg .tif"
         )
 
-    file_content = await file.read()
+    try:
+    
+        file_content =  await file.read()
 
-    image_io = BytesIO(file_content)
+        if file_content:
 
-    image_resized = resize_picture(image_io)
+            image_io = BytesIO(file_content)
 
-    blob_client = create_blob_client(file_name=file_name)
+            image_resized = resize_picture(image_io)
 
-    blob_client.upload_blob(data=image_resized)
+            blob_client = create_blob_client(file_name=file_name)
 
-    return file.filename
+            blob_client.upload_blob(data=image_resized)
+
+            logger.info("image uploaded")
+
+            if blob_client.exists():
+
+                await update_user_photo_name(user, blob_client.url)
+
+                return file.filename
+
+            else:
+                raise HTTPException(
+                500, "Image was not able to be uploaded"
+            )
+    except Exception as e:
+        logger.exception("Error while trying to upload image to azure")

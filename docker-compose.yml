@@ -9,6 +9,8 @@ services:
       - 8085:80
     env_file:
       - ./natours/.env
+    volumes:
+      - ./logs/:/backend/logs
   frontend:
     build:
       context: ./natours-frontend
