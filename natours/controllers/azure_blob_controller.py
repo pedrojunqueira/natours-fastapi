@@ -59,8 +59,9 @@ def delete_blob(file):
 
 async def update_user_photo_name(user, photo_url):
     current_photo = user.photo
-    blob_name = "/".join(current_photo.split("/")[-3:])
-    delete_blob(blob_name)
+    if current_photo:
+        blob_name = "/".join(current_photo.split("/")[-3:])
+        delete_blob(blob_name)
     user.photo = photo_url
     await db.save(user)
 
