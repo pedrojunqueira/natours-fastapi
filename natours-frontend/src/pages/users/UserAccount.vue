@@ -105,6 +105,9 @@
             <div class="form__group form__photo-upload">
               <img class="form__user-photo" :src="image" alt="User photo" />
             </div>
+            <div v-if="isFetchinPhoto">
+              <base-spinner></base-spinner>
+            </div>
             <input type="file" @change="onFileSelected" />
             <div class="form__group right">
               <button
@@ -219,6 +222,7 @@ export default {
       isSuccess: false,
       isError: false,
       selectedFile: null,
+      isFetchinPhoto: false,
     };
   },
   async created() {
@@ -337,6 +341,7 @@ export default {
     },
     async uploadPhoto() {
       try {
+        this.isFetchinPhoto = true;
         const photoData = new FormData();
         photoData.append("files", this.selectedFile);
         const token = this.$store.getters.token;
@@ -351,9 +356,11 @@ export default {
         const response = await axios(config);
         if (response.status == 200) {
           this.message = response.data.message;
-          this.flashMessageDetail = true;
-          this.isError = false;
-          this.isSuccess = true;
+          // this.flashMessageDetail = true;
+          // this.isError = false;
+          // this.isSuccess = true;
+          this.isFetchinPhoto = false;
+          window.location.reload();
         }
       } catch (err) {
         this.message = err.response.data.detail;
