@@ -356,9 +356,6 @@ export default {
         const response = await axios(config);
         if (response.status == 200) {
           this.message = response.data.message;
-          // this.flashMessageDetail = true;
-          // this.isError = false;
-          // this.isSuccess = true;
           this.isFetchinPhoto = false;
           window.location.reload();
         }
@@ -367,6 +364,7 @@ export default {
         this.flashMessageDetail = true;
         this.isSuccess = false;
         this.isError = true;
+        this.isFetchinPhoto = false;
       }
     },
   },
