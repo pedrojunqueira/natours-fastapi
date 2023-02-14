@@ -1,5 +1,5 @@
 # Create the container from the alpine linux image
-FROM node:lts-alpine
+FROM node:16.3.0-alpine
 
 # Add nginx and nodejs
 #RUN apk add --update nginx nodejs
@@ -20,6 +20,7 @@ WORKDIR /tmp/nginx/vue-single-page-app
 COPY . .
 # Install the dependencies, can be commented out if you're running the same node version
 RUN npm install
+
 
 # run webpack and the vue-loader
 RUN npm run build
